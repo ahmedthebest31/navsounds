@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+from random import choice
 import globalPluginHandler
 from winsound import PlaySound
 import controlTypes, ui, os, speech, NVDAObjects
@@ -14,12 +15,19 @@ roleSECTION = "NavigationSounds"
 confspec = {
 "sayRoles": "boolean(default=false)",
 "soundType": "string(default=sound1)",
-"rolesSounds": "boolean(default=true)"}
+"rolesSounds": "boolean(default=true)",
+"typing": "boolean(default=true)",
+"type": "string(default=k1)",
+"edit": "boolean(default=false)"}
+
 config.conf.spec[roleSECTION] = confspec
 rolesSounds= config.conf[roleSECTION]["rolesSounds"]
 sayRoles= config.conf[roleSECTION]["sayRoles"]
 def loc():
-	return os.path.join(os.path.abspath(os.path.dirname(__file__)), "effects",config.conf[roleSECTION]["soundType"])
+	return os.path.join(os.path.abspath(os.path.dirname(__file__)), "effects","navsounds",config.conf[roleSECTION]["soundType"])
+def loc1():
+	return os.path.join(os.path.abspath(os.path.dirname(__file__)),"effects","typingsound",config.conf[roleSECTION]["type"])
+
 #Add all the roles, looking for name.wav.
 def sounds():
 	sounds1 = {}
@@ -47,7 +55,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		NVDASettingsDialog.categoryClasses.append(NavSettingsPanel)
 		global old
 		old = speech.speech.getPropertiesSpeech
+	def play1(self,l):
+		if os.path.exists(os.path.join(loc1(),os.listdir(loc1())[0])) and config.conf[roleSECTION]["typing"]:
+			PlaySound(os.path.join(loc1(),choice(os.listdir(loc1()))),1)
+	def editable(self, object):
+		controls = (8, 52, 82)
+		return (object.role in controls or controlTypes .STATE_EDITABLE in object.states) and not controlTypes .STATE_READONLY in object.states
 
+	def event_typedCharacter(self, obj, nextHandler, ch):
+		if config.conf[roleSECTION]["edit"]:
+			if self.editable(obj):
+				self.play1(ch)
+		else:
+			self.play1(ch)
+		nextHandler()
 	def event_gainFocus(self, obj, nextHandler):
 		if rolesSounds == True:
 			speech.speech.getPropertiesSpeech = getSpeechTextForProperties2
@@ -82,14 +103,26 @@ class NavSettingsPanel(SettingsPanel):
 		sHelper = guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
 		self.tlable = sHelper.addItem(wx.StaticText(self, label=_("select sound"), name="ts"))
 		self.sou= sHelper.addItem(wx.Choice(self, name="ts"))
-		self.sou.Set(os.listdir(os.path.join(os.path.abspath(os.path.dirname(__file__)), "effects")))
+		self.sou.Set(os.listdir(os.path.join(os.path.abspath(os.path.dirname(__file__)), "effects","navsounds")))
 		self.sou.SetStringSelection(config.conf[roleSECTION]["soundType"])
 		self.nas=sHelper.addItem(wx.CheckBox(self,label=_("say roles")))
 		self.nas.SetValue(config.conf[roleSECTION]["sayRoles"])
 		self.nab=sHelper.addItem(wx.CheckBox(self,label=_("navigation sounds")))
 		self.nab.SetValue(config.conf[roleSECTION]["rolesSounds"])
+		self.ts=sHelper.addItem(wx.CheckBox(self,label=_("keyboard typing sound")))
+		self.ts.SetValue(config.conf[roleSECTION]["typing"])
+		self.edit=sHelper.addItem(wx.CheckBox(self,label=_("enable typing sound in text boxes only")))
+		self.edit.SetValue(config.conf[roleSECTION]["edit"])
+		self.tlable1 = sHelper.addItem(wx.StaticText(self, label=_("select typing sound"), name="tt"))
+		self.sou1= sHelper.addItem(wx.Choice(self, name="tt"))
+		self.sou1.Set(os.listdir(os.path.join(os.path.abspath(os.path.dirname(__file__)), "effects","typingsound")))
+		self.sou1.SetStringSelection(config.conf[roleSECTION]["type"])
+		b=sHelper.addItem(wx.Button(self,label=_("open sounds folder")))
+		b.Bind(wx.EVT_BUTTON,self.onopen)
 	def postInit(self):
 		self.sou.SetFocus()
+	def onopen(self,event):
+		os.startfile(os.path.join(os.path.abspath(os.path.dirname(__file__)), "effects"))
 	def onSave(self):
 		global sayRoles,rolesSounds
 		config.conf[roleSECTION]["soundType"]=self.sou.GetStringSelection()
@@ -97,3 +130,6 @@ class NavSettingsPanel(SettingsPanel):
 		sayRoles=config.conf[roleSECTION]["sayRoles"]
 		config.conf[roleSECTION]["rolesSounds"]=self.nab.GetValue()
 		rolesSounds=config.conf[roleSECTION]["rolesSounds"]
+		config.conf[roleSECTION]["typing"]=self.ts.GetValue()
+		config.conf[roleSECTION]["edit"]=self.edit.GetValue()
+		config.conf[roleSECTION]["type"]=self.sou1.GetStringSelection()
