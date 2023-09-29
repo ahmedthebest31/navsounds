@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2023-09-11 09:51+0300\n"
-"PO-Revision-Date: 2023-09-12 12:53+0300\n"
-"Last-Translator: \n"
+"PO-Revision-Date: 2023-09-26 18:45+0200\n"
+"Last-Translator: Rémy Ruiz <remyruiz@gmail.com>\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 3.3.2\n"
+"X-Generator: Poedit 1.8.8\n"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:52
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:101
@@ -25,31 +25,28 @@ msgstr "sons de navigation"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:85
 msgid "Disable navigation sounds"
-msgstr ""
+msgstr "Désactiver les sons de navigation"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:87
 msgid "Enable navigation sounds"
-msgstr ""
+msgstr "Activer les sons de navigation"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:91
 msgid "Disable sayRoles"
-msgstr ""
+msgstr "Désactiver dire les rôles"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:93
 msgid "Enable sayRoles"
-msgstr ""
+msgstr "Activer dire les rôles"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:96
 msgid ""
 "Pressing it once toggles between on and off object sounds, and Pressing "
 "twice  it toggles between reading and disabling object types."
 msgstr ""
-"En appuyant une fois, vous basculez entre l'activation et la "
-"désactivation des sons d'objet, et en appuyant deux fois, vous basculez "
-"entre la lecture et la désactivation des types d'objet.\n"
-"Al presionarlo una vez se alterna entre activar y desactivar los "
-"sonidos de los objetos, y al presionarlo dos veces se alterna entre "
-"leer y deshabilitar los tipos de objetos."
+"En appuyant une fois, vous basculez entre l'activation et la désactivation "
+"des sons d'objet, et en appuyant deux fois, vous basculez entre l'activation "
+"et la désactivation de la verbalisation des types d'objet."
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:104
 msgid "select sound"
@@ -65,7 +62,7 @@ msgstr "   son de frappe au clavier"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:114
 msgid "enable typing sound in text boxes only"
-msgstr "   habilitar el sonido de escritura solo en cuadros de texto"
+msgstr "activer le son de frappe uniquement dans les zones de texte"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:116
 msgid "select typing sound"

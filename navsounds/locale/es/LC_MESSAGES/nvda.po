@@ -6,15 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2023-09-11 09:51+0300\n"
-"PO-Revision-Date: 2023-09-12 12:47+0300\n"
-"Last-Translator: \n"
+"PO-Revision-Date: 2023-09-26 18:42+0200\n"
+"Last-Translator: Rémy Ruiz <remyruiz@gmail.com>\n"
 "Language-Team: \n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 3.3.2\n"
+"X-Generator: Poedit 1.8.8\n"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:52
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:101
@@ -24,19 +24,19 @@ msgstr "sonidos de navegación"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:85
 msgid "Disable navigation sounds"
-msgstr ""
+msgstr "Deshabilitar sonidos de navegación"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:87
 msgid "Enable navigation sounds"
-msgstr ""
+msgstr "Habilitar sonidos de navegación"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:91
 msgid "Disable sayRoles"
-msgstr ""
+msgstr "Deshabilitar  decir los roles"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:93
 msgid "Enable sayRoles"
-msgstr ""
+msgstr "Habilitar decir los roles"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:96
 msgid ""
@@ -45,7 +45,7 @@ msgid ""
 msgstr ""
 "Al presionarlo una vez se alterna entre activar y desactivar los "
 "sonidos de los objetos, y al presionarlo dos veces se alterna entre "
-"leer y deshabilitar los tipos de objetos."
+"activar y desactivar la verbalización de los tipos de objetos."
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:104
 msgid "select sound"
@@ -53,15 +53,15 @@ msgstr "seleccionar sonido"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:108
 msgid "say roles"
-msgstr "dice roles"
+msgstr "decir los roles"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:112
 msgid "keyboard typing sound"
-msgstr "   sonido de escritura del teclado"
+msgstr "sonido de escritura del teclado"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:114
 msgid "enable typing sound in text boxes only"
-msgstr "   habilitar el sonido de escritura solo en cuadros de texto"
+msgstr "habilitar el sonido de escritura solo en cuadros de texto"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\NavigationSounds\globalPlugins\NavigationSounds\__init__.py:116
 msgid "select typing sound"
