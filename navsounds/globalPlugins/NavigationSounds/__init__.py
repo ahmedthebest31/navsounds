@@ -1,7 +1,8 @@
 # -*- coding: UTF-8 -*-
+import webbrowser as web
 from random import choice
 import globalPluginHandler
-from winsound import PlaySound
+import nvwave
 import controlTypes, ui, os, speech, NVDAObjects
 import config
 from scriptHandler import script, getLastScriptRepeatCount
@@ -14,11 +15,12 @@ import wx
 roleSECTION = "NavigationSounds"
 confspec = {
 "sayRoles": "boolean(default=false)",
-"soundType": "string(default=sound1)",
+"soundType": "string(default=default)",
 "rolesSounds": "boolean(default=true)",
 "typing": "boolean(default=true)",
-"type": "string(default=k1)",
-"edit": "boolean(default=false)"}
+"type": "string(default=1blueSwitch)",
+"edit": "boolean(default=false)",
+"volume": "integer(default=100)"}
 
 config.conf.spec[roleSECTION] = confspec
 rolesSounds= config.conf[roleSECTION]["rolesSounds"]
@@ -45,8 +47,9 @@ def getSpeechTextForProperties2(reason=NVDAObjects.controlTypes.OutputReason, *a
 def play(role):
 	"""plays sound for role."""
 	f = sounds()[role]
+	# nvwave.set_volume(40/100)
 	if os.path.exists(f) and rolesSounds==True:
-		PlaySound(f, 1)
+		nvwave.playWaveFile(f, 1)
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	scriptCategory= _("navigation sounds")
@@ -57,7 +60,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		old = speech.speech.getPropertiesSpeech
 	def play1(self,l):
 		if os.path.exists(os.path.join(loc1(),os.listdir(loc1())[0])) and config.conf[roleSECTION]["typing"]:
-			PlaySound(os.path.join(loc1(),choice(os.listdir(loc1()))),1)
+			nvwave.playWaveFile(os.path.join(loc1(),choice(os.listdir(loc1()))),1)
 	def editable(self, object):
 		controls = (8, 52, 82)
 		return (object.role in controls or controlTypes .STATE_EDITABLE in object.states) and not controlTypes .STATE_READONLY in object.states
@@ -77,7 +80,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	@script(gesture="kb:NVDA+alt+n")
 	def script_toggle(self, gesture):
-		global rolesSounds, sayRoles
+		global rolesSounds
+		sayRoles =config.conf[roleSECTION]["typing"]
 		isSameScript = getLastScriptRepeatCount()
 		if isSameScript == 0:
 			rolesSounds = not rolesSounds
@@ -88,12 +92,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		elif isSameScript ==1:
 			sayRoles = not sayRoles
 			if sayRoles ==False:
-				ui.message(_("Disable sayRoles"))
+				ui.message(_("Disable typing sounds"))
 			else:
-				ui.message(_("Enable sayRoles"))
-		config.conf[roleSECTION]["sayRoles"] = sayRoles
+				ui.message(_("Enable typing sounds"))
+		config.conf[roleSECTION]["typing"] = sayRoles
 		config.conf[roleSECTION]["rolesSounds"] = rolesSounds
-	script_toggle.__doc__= _("Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between reading and disabling object types.")
+	script_toggle.__doc__= _("Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds.")
 	def terminate(self):
 		NVDASettingsDialog.categoryClasses.remove(NavSettingsPanel)
 
@@ -117,8 +121,14 @@ class NavSettingsPanel(SettingsPanel):
 		self.sou1= sHelper.addItem(wx.Choice(self, name="tt"))
 		self.sou1.Set(os.listdir(os.path.join(os.path.abspath(os.path.dirname(__file__)), "effects","typingsound")))
 		self.sou1.SetStringSelection(config.conf[roleSECTION]["type"])
+		self.tlable2 = sHelper.addItem(wx.StaticText(self, label=_("volume"), name="tt2"))
+		self.sou2= sHelper.addItem(wx.SpinCtrl(self, name="tt2",min=0,max=100))
+		self.sou2.SetValue(config.conf[roleSECTION]["volume"])
+		self.sou2.Hide()
 		b=sHelper.addItem(wx.Button(self,label=_("open sounds folder")))
 		b.Bind(wx.EVT_BUTTON,self.onopen)
+		donate=sHelper.addItem(wx.Button(self,label=_("donate")))
+		donate.Bind(wx.EVT_BUTTON,self.ondonate)
 	def postInit(self):
 		self.sou.SetFocus()
 	def onopen(self,event):
@@ -133,3 +143,7 @@ class NavSettingsPanel(SettingsPanel):
 		config.conf[roleSECTION]["typing"]=self.ts.GetValue()
 		config.conf[roleSECTION]["edit"]=self.edit.GetValue()
 		config.conf[roleSECTION]["type"]=self.sou1.GetStringSelection()
+		config.conf[roleSECTION]["volume"]=self.sou2.GetValue()
+	def ondonate(self,e):
+		ui.message("please wait")
+		web.open("https://www.paypal.me/ahmedthebest31")
