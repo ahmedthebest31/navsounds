@@ -1,0 +1,81 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2023-10-02 12:08+0300\n"
+"PO-Revision-Date: 2023-10-02 12:25+0300\n"
+"Last-Translator: Heorhii <nvda.translation.uk@gmail.com>\n"
+"Language-Team: \n"
+"Language: uk_UA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4\n"
+"X-Poedit-Basepath: ../../../globalPlugins\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: NavigationSounds/__init__.py:55 NavigationSounds/__init__.py:105
+#: NavigationSounds/__init__.py:114
+msgid "navigation sounds"
+msgstr "звуки навігації"
+
+#: NavigationSounds/__init__.py:89
+msgid "Disable navigation sounds"
+msgstr "Вимкнути звуки навігації"
+
+#: NavigationSounds/__init__.py:91
+msgid "Enable navigation sounds"
+msgstr "Увімкнути звуки навігації"
+
+#: NavigationSounds/__init__.py:95
+msgid "Disable typing sounds"
+msgstr "Вимкнути звуки введення"
+
+#: NavigationSounds/__init__.py:97
+msgid "Enable typing sounds"
+msgstr "Увімкнути звуки введення"
+
+#: NavigationSounds/__init__.py:100
+msgid ""
+"Pressing it once toggles between on and off object sounds, and Pressing "
+"twice  it toggles between on and off typing sounds."
+msgstr ""
+"Одноразове натискання вмикає й вимикає звуки об’єктів, а подвійне "
+"натискання вмикає й вимикає звуки введення."
+
+#: NavigationSounds/__init__.py:108
+msgid "select sound"
+msgstr "вибрати звук"
+
+#: NavigationSounds/__init__.py:112
+msgid "say roles"
+msgstr "промовляти ролі"
+
+#: NavigationSounds/__init__.py:116
+msgid "keyboard typing sound"
+msgstr "звук набору тексту на клавіатурі"
+
+#: NavigationSounds/__init__.py:118
+msgid "enable typing sound in text boxes only"
+msgstr "увімкнути звук введення лише в текстових полях"
+
+#: NavigationSounds/__init__.py:120
+msgid "select typing sound"
+msgstr "вибрати звук введення"
+
+#: NavigationSounds/__init__.py:124
+msgid "volume"
+msgstr "гучність"
+
+#: NavigationSounds/__init__.py:128
+msgid "open sounds folder"
+msgstr "відкрити папку звуків"
+
+#: NavigationSounds/__init__.py:130
+msgid "donate"
+msgstr "пожертвувати"
+
+#~ msgid "Disable sayRoles"
+#~ msgstr "Вимкнути озвучення ролей"
+
+#~ msgid "Enable sayRoles"
+#~ msgstr "Увімкнути озвучення ролей"
