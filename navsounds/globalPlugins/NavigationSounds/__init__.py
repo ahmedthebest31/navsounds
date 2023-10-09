@@ -3,6 +3,7 @@ import webbrowser as web
 from random import choice
 import globalPluginHandler
 import nvwave
+from winsound import PlaySound
 import controlTypes, ui, os, speech, NVDAObjects
 import config
 from scriptHandler import script, getLastScriptRepeatCount
@@ -21,10 +22,10 @@ confspec = {
 "type": "string(default=1blueSwitch)",
 "edit": "boolean(default=false)",
 "volume": "integer(default=100)"}
-
 config.conf.spec[roleSECTION] = confspec
 rolesSounds= config.conf[roleSECTION]["rolesSounds"]
 sayRoles= config.conf[roleSECTION]["sayRoles"]
+
 def loc():
 	return os.path.join(os.path.abspath(os.path.dirname(__file__)), "effects","navsounds",config.conf[roleSECTION]["soundType"])
 def loc1():
@@ -46,8 +47,8 @@ def getSpeechTextForProperties2(reason=NVDAObjects.controlTypes.OutputReason, *a
 
 def play(role):
 	"""plays sound for role."""
+	global playing
 	f = sounds()[role]
-	# nvwave.set_volume(40/100)
 	if os.path.exists(f) and rolesSounds==True:
 		nvwave.playWaveFile(f, 1)
 
@@ -56,11 +57,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def __init__(self, *args, **kwargs):
 		globalPluginHandler.GlobalPlugin.__init__(self, *args, **kwargs)
 		NVDASettingsDialog.categoryClasses.append(NavSettingsPanel)
+		self.playing = False
 		global old
 		old = speech.speech.getPropertiesSpeech
 	def play1(self,l):
 		if os.path.exists(os.path.join(loc1(),os.listdir(loc1())[0])) and config.conf[roleSECTION]["typing"]:
-			nvwave.playWaveFile(os.path.join(loc1(),choice(os.listdir(loc1()))),1)
+			if self.playing == True:
+				nvwave.playWaveFile(os.path.join(loc1(),choice(os.listdir(loc1()))), 1)
+				self.playing = False
+			else:
+				PlaySound(os.path.join(loc1(),choice(os.listdir(loc1()))), 1)
+				self.playing = True
 	def editable(self, object):
 		controls = (8, 52, 82)
 		return (object.role in controls or controlTypes .STATE_EDITABLE in object.states) and not controlTypes .STATE_READONLY in object.states
