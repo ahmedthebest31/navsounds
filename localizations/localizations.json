@@ -1,0 +1,110 @@
+import json
+
+translations = {
+    "en": {
+        "navigation sounds": "navigation sounds",
+        "select sound": "select sound",
+        "say roles": "say roles",
+        "say states": "say states",
+        "keyboard typing sound": "keyboard typing sound",
+        "enable typing sound in text boxes only": "enable typing sound in text boxes only",
+        "select typing sound": "select typing sound",
+        "open sounds folder": "open sounds folder",
+        "donate": "donate",
+        "Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds.": "Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds.",
+        "Navigation sound effects": "Navigation sound effects"
+    },
+    "ar": {
+        "navigation sounds": "أصوات التنقل",
+        "select sound": "اختر الصوت",
+        "say roles": "أنتق عن أدوار العناصر",
+        "say states": "أنتق عن الحالات",
+        "keyboard typing sound": "أصوات الكتابة على لوحة المفاتيح",
+        "enable typing sound in text boxes only": "تفعيل صوت الكتابة في مربعات النص فقط",
+        "select typing sound": "اختر صوت الكتابة",
+        "open sounds folder": "افتح ملف الأصوات",
+        "donate": "تبرع",
+        "Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds.": "أضغط مرة واحدة لتفعيل أو تعطيل أصوات التنقل ، والضغط مرتين يقوم لتفعيل أو تعطيل أصوات الكتابة.",
+        "Navigation sound effects": "مؤثرات أصوات التنقل"
+    },
+	"it": {
+        "navigation sounds": "suoni di navigazione",
+        "select sound": "seleziona suono",
+        "say roles": "dici ruoli",
+        "say states": "dici stati",
+        "keyboard typing sound": "suono della digitazione della tastiera",
+        "enable typing sound in text boxes only": "abilita il suono di digitazione solo nelle caselle di testo",
+        "select typing sound": "seleziona il suono di digitazione",
+        "open sounds folder": "apri la cartella dei suoni",
+        "donate": "dona",
+        "Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds.": "Premendolo una volta si alterna tra suoni dell'oggetto attivi e non, e premendolo due volte si alterna tra suoni di digitazione attivi e non.",
+        "Navigation sound effects": "Effetti sonori di navigazione"
+    },
+	"es": {
+        "navigation sounds": "sonidos de navegación",
+        "select sound": "seleccionar sonido",
+        "say roles": "decir roles",
+        "say states": "decir estados",
+        "keyboard typing sound": "sonido de tecleo",
+        "enable typing sound in text boxes only": "habilitar sonido de tecleo solo en cuadros de texto",
+        "select typing sound": "seleccionar sonido de tecleo",
+        "open sounds folder": "abrir carpeta de sonidos",
+        "donate": "donar",
+        "Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds.": "Presionarlo una vez alterna entre sonidos de objeto activados y desactivados, y presionarlo dos veces alterna entre sonidos de tecleo activados y desactivados.",
+        "Navigation sound effects": "Efectos sonoros de navegación"
+		},
+		    "pt": {
+        "navigation sounds": "sons de navegação",
+        "select sound": "selecionar som",
+        "say roles": "dizer papéis",
+        "say states": "dizer estados",
+        "keyboard typing sound": "som de digitação no teclado",
+        "enable typing sound in text boxes only": "ativar som de digitação apenas em caixas de texto",
+        "select typing sound": "selecionar som de digitação",
+        "open sounds folder": "abrir pasta de sons",
+        "donate": "doar",
+        "Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds.": "Pressionar uma vez alterna entre sons de objeto ligados e desligados, e pressionar duas vezes alterna entre sons de digitação ligados e desligados.",
+        "Navigation sound effects": "Efeitos sonoros de navegação"
+    },
+    "pl": {
+        "navigation sounds": "dźwięki nawigacji",
+        "select sound": "wybierz dźwięk",
+        "say roles": "powiedz role",
+        "say states": "powiedz stany",
+        "keyboard typing sound": "dźwięk pisania na klawiaturze",
+        "enable typing sound in text boxes only": "włącz dźwięk pisania tylko w polach tekstowych",
+        "select typing sound": "wybierz dźwięk pisania",
+        "open sounds folder": "otwórz folder dźwięków",
+        "donate": "przekaż darowiznę",
+        "Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds.": "Naciśnięcie raz przełącza między włączonymi i wyłączonymi dźwiękami obiektów, a naciśnięcie dwukrotnie przełącza między włączonymi i wyłączonymi dźwiękami pisania.",
+        "Navigation sound effects": "Efekty dźwiękowe nawigacji"
+    },
+    "da": {
+        "navigation sounds": "navigationslyde",
+        "select sound": "vælg lyd",
+        "say roles": "sig roller",
+        "say states": "sig stater",
+        "keyboard typing sound": "tastaturtastningslyd",
+        "enable typing sound in text boxes only": "aktiver tastelyd kun i tekstbokse",
+        "select typing sound": "vælg tastelyd",
+        "open sounds folder": "åbn lydmappen",
+        "donate": "donér",
+        "Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds.": "At trykke på den en gang skifter mellem tændte og slukkede objektlyde, og at trykke to gange skifter mellem tændte og slukkede tastelyde.",
+        "Navigation sound effects": "Navigationslydeffekter"
+    },
+    "zh-CN": {
+        "navigation sounds": "导航音效",
+        "select sound": "选择声音",
+        "say roles": "说出角色",
+        "say states": "说出状态",
+        "keyboard typing sound": "键盘打字声",
+        "enable typing sound in text boxes only": "仅在文本框中启用打字声",
+        "select typing sound": "选择打字声",
+        "open sounds folder": "打开声音文件夹",
+        "donate": "捐赠",
+        "Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds.": "按一次在开启和关闭对象声音之间切换，按两次在开启和关闭打字声音之间切换。",
+        "Navigation sound effects": "导航声效"
+    }
+}
+
+		

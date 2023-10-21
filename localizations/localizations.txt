@@ -1,0 +1,116 @@
+english (en):
+navigation sounds
+select sound
+say roles
+say states
+keyboard typing sound
+enable typing sound in text boxes only
+select typing sound
+open sounds folder
+donate
+Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds.
+Navigation sound effects
+ 
+ Arabic (ar):
+أصوات  التنقل
+اختر الصوت
+أنتق  عن أدوار العناصر
+أنتق  عن الحالات
+أصوات الكتابة على لوحة المفاتيح
+تفعيل صوت الكتابة في مربعات النص فقط
+اختر صوت الكتابة
+افتح ملف الأصوات
+تبرع
+أضغط مرة واحدة  لتفعيل أو تعطيل  أصوات التنقل ، والضغط مرتين يقوم لتفعيل أو تعطيل أصوات الكتابة.
+مؤثرات أصوات التنقل
+
+Italian (it):
+suoni di navigazione
+seleziona suono
+dici ruoli
+dici stati
+suono della digitazione della tastiera
+abilita il suono di digitazione solo nelle caselle di testo
+seleziona il suono di digitazione
+apri la cartella dei suoni
+dona
+Premendolo una volta si alterna tra suoni dell'oggetto attivi e non, e premendolo due volte si alterna tra suoni di digitazione attivi e non.
+Effetti sonori di navigazione
+
+French (fr):
+sons de navigation
+sélectionner un son
+dire rôles
+dire états
+son de frappe au clavier
+activer le son de frappe uniquement dans les boîtes de texte
+sélectionner le son de frappe
+ouvrir le dossier des sons
+faire un don
+Appuyer une fois bascule entre les sons d'objet activés et désactivés, et appuyer deux fois bascule entre les sons de frappe activés et désactivés.
+Effets sonores de navigation
+
+Spanish (es):
+sonidos de navegación
+seleccionar sonido
+decir roles
+decir estados
+sonido de tecleo
+habilitar sonido de tecleo solo en cuadros de texto
+seleccionar sonido de tecleo
+abrir carpeta de sonidos
+donar
+Presionarlo una vez alterna entre sonidos de objeto activados y desactivados, y presionarlo dos veces alterna entre sonidos de tecleo activados y desactivados.
+Efectos sonoros de navegación
+
+Portuguese (pt):
+sons de navegação
+selecionar som
+dizer papéis
+dizer estados
+som de digitação no teclado
+ativar som de digitação apenas em caixas de texto
+selecionar som de digitação
+abrir pasta de sons
+doar
+Pressionar uma vez alterna entre sons de objeto ligados e desligados, e pressionar duas vezes alterna entre sons de digitação ligados e desligados.
+Efeitos sonoros de navegação
+
+Polish (pl):
+dźwięki nawigacji
+wybierz dźwięk
+powiedz role
+powiedz stany
+dźwięk pisania na klawiaturze
+włącz dźwięk pisania tylko w polach tekstowych
+wybierz dźwięk pisania
+otwórz folder dźwięków
+przekaż darowiznę
+Naciśnięcie raz przełącza między włączonymi i wyłączonymi dźwiękami obiektów, a naciśnięcie dwukrotnie przełącza między włączonymi i wyłączonymi dźwiękami pisania.
+Efekty dźwiękowe nawigacji
+
+Danish (da):
+navigationslyde
+vælg lyd
+sig roller
+sig stater
+tastaturtastningslyd
+aktiver tastelyd kun i tekstbokse
+vælg tastelyd
+åbn lydmappen
+donér
+At trykke på den en gang skifter mellem tændte og slukkede objektlyde, og at trykke to gange skifter mellem tændte og slukkede tastelyde.
+Navigationslydeffekter
+
+Chinese Simplified (zh-CN):
+导航音效
+选择声音
+说出角色
+说出状态
+键盘打字声
+仅在文本框中启用打字声
+选择打字声
+打开声音文件夹
+捐赠
+按一次在开启和关闭对象声音之间切换，按两次在开启和关闭打字声音之间切换。
+导航声效
