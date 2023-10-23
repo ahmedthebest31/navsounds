@@ -4,11 +4,11 @@ Navigation Sounds is an NVDA screen reader add-on that provides audio feedback f
 
 ## 🌟 Features
 
-- 🔊 **Toggle Sounds**: Swiftly turn object sounds and typing feedback on/off with `NVDA+alt+n`. Further customization available under `NVDA menu Preferences > Input gestures > Navigation Sounds`.
-- ⚙️ **Settings Page**: Personalize your experience by selecting from a variety of navigation sound packages and typing effects. Additional configuration options also available.
-- 🎶 **Sound Packages**: Comes bundled with diverse sound effects. Plus, you're free to craft and integrate your custom packages.
-- 🔄 **Compatibility**: Tailored for modern NVDA versions, starting from 2019.3.
-- 🌍 **Multilingual**: Supports English, Arabic, Italian, French, Spanish, Portuguese, Polish, Danish, Ukrainian, and Chinese simplified.
+- **Toggle Sounds**: Swiftly turn object sounds and typing feedback on/off with `NVDA+alt+n`. Further customization available under `NVDA menu Preferences > Input gestures > Navigation Sounds`.
+- **Settings Page**: Personalize your experience by selecting from a variety of navigation sound packages and typing effects. Additional configuration options also available.
+- **Sound Packages**: Comes bundled with diverse sound effects. Plus, you're free to craft and integrate your custom packages.
+- **Compatibility**: Tailored for modern NVDA versions, starting from 2019.3.
+- **Multilingual**: Supports English, Arabic, Italian, French, Spanish, Portuguese, Polish, Danish, Ukrainian, and Chinese simplified.
 
  
 To stay updated on the latest changes, please refer to [changelog.md file](./CHANGELOG.md).
@@ -28,18 +28,23 @@ For users on NVDA 2023.2 or newer:
 3. NVDA will restart automatically. Enjoy the enhanced audio feedback with Navigation Sounds!
 
 
-## 🤝 Contributing
+## Contributing
+### Top Contributions
 
-**Acknowledgements**: 
+Special thanks to:
 
-A hearty thank you to our contributors:
-- [mesteranas](https://github.com/mesteranas/) - *Add brief description of contribution*
-- [Qadary-Yemen_Developer](https://t.me/QaYeDev) - *Add brief description of contribution*
+- [mesteranas](https://github.com/mesteranas/)
+- [Qadary-Yemen_Developer](https://t.me/QaYeDev)
+For their wonderful contributions to developing this add-on.
+
+And to everyone else who helped with translation, suggestions, or notified me of any bugs / errors to make this add-on even better.
+
+
 
 Contributions to this project are welcome! If you find a bug, have an idea for an improvement, or want to contribute in any other way, please feel free to open an issue or submit a pull request.
 
 *For detailed contribution guidelines, check out our [CONTRIBUTING.md](./CONTRIBUTING.md) file.*
 
-## 📜 License
+## License
 
 This project is licensed under the [GNU General Public License, version 2] - see the [LICENSE.md](LICENSE.md) file for details.
