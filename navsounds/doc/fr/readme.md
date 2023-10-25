@@ -1,27 +1,27 @@
 # nav Sounds
-This is an NVDA screen reader add-on that 
-providing navigation sounds and keyboard typing sounds. 
-You can hear different sounds based on the roles of the elements you interact with,
-Also allow you to play different keyboard sound as you type.
-with the ability to customize everything.
+Il s'agit d'une extension pour NVDA qui fournit des sons de navigation et des sons de frappe au clavier.
+Vous pouvez entendre différents sons en fonction des rôles des éléments avec lesquels vous interagissez, ainsi que différents sons lors de la frappe.
+Avec la possibilité de tout personnaliser.
 
  
-## About
+## Origine
 
 
-This add-on is inspired by the abandoned "objsounds" add-on created by Tyler Spivey. Since that add-on hasn't been updated for a long time, I decided to create this add-on to continue providing similar functionality while keeping up with the changes in the NVDA screen reader.
+Cette extension est inspirée par l'extension Objsounds, créée par Tyler Spivey et déjà abandonnée. Étant donné que cette extension n'a pas été mise à jour depuis longtemps, l'auteur a décidé de créer cette extension pour continuer à fournir des fonctions similaires tout en suivant les changements de NVDA.
 
-created by Ahmed Samy (AhmedTheBest)
+Créé par Ahmed Samy (AhmedTheBest)
 email: ahmedthebest31@gmail.com
-with a Contribution from mesteranas
+avec la contribution de mesteranas
 [github]("https://github.com/ahmedthebest31/navsounds")
-[donation]("https://www.paypal.me/ahmedthebest31")
+[faire un don]("https://www.paypal.me/ahmedthebest31")
 
-Easily switch between enabling and disabling object sounds and   keyboard typing sound   with a simple keyboard gesture NVDA+alt+n and you can customize it as you want from open nvda menue Preferences  subMenu / Input gestures navigation sounds.   
-Access a settings page where you can choose from various navigation sound packages / keyboard typing sound effects and configure additional options.
- includes a selection of sound packages / typing keyboard sound effects, and you can even create and add your custom packages.
+Basculez facilement en appuyant une fois sur le raccourci clavier NVDA+alt+n pour l'activation et la désactivation des sons d'objet, et en appuyant deux fois pour l'activation et la désactivation  des sons de frappe au clavier. Vous pouvez modifier le raccourci clavier à votre guise à partir de la catégorie sons de navigation dans le dialogue Gestes de commandes.   
+Accédez à une page  de paramètres où vous pouvez choisir entre divers  packages de sons de navigation / effets de sons de frappe au clavier et configurer des options supplémentaires.   
+Comprend une sélection de packages de sons / effets de sons de frappe et vous pouvez même créer et ajouter vos packages personnalisés.
 
 
-Contributions to this project are welcome! If you find a bug, have an idea for an improvement, or want to contribute in any other way, please feel free to open an issue or submit a pull request.
+Les contributions à ce projet sont les bienvenues! Si vous trouvez un bogue, vous avez une idée d'amélioration ou que vous souhaitez collaborer d'une autre manière, n'hésitez pas à ouvrir  une incidence (issue)ou une demande via une pull request en toute liberté.
 
-Special thanks to  [mesteranas](https://github.com/mesteranas/) for his wonderful Contributions in developing this add-on with me.
+Remerciement spécial à [mesteranas](https://github.com/mesteranas/) pour ces merveilleuses contributions dans le développement de cette extension.
+
+
