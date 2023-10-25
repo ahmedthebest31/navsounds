@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-10-02 12:08+0300\n"
-"PO-Revision-Date: 2023-10-02 12:25+0300\n"
+"POT-Creation-Date: 2023-10-19 16:06+0300\n"
+"PO-Revision-Date: 2023-10-23 14:44+0300\n"
 "Last-Translator: Heorhii <nvda.translation.uk@gmail.com>\n"
 "Language-Team: \n"
 "Language: uk_UA\n"
@@ -13,64 +13,69 @@ msgstr ""
 "X-Poedit-Basepath: ../../../globalPlugins\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: NavigationSounds/__init__.py:55 NavigationSounds/__init__.py:105
-#: NavigationSounds/__init__.py:114
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:67
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:122
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:133
 msgid "navigation sounds"
 msgstr "звуки навігації"
 
-#: NavigationSounds/__init__.py:89
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:106
 msgid "Disable navigation sounds"
 msgstr "Вимкнути звуки навігації"
 
-#: NavigationSounds/__init__.py:91
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:108
 msgid "Enable navigation sounds"
 msgstr "Увімкнути звуки навігації"
 
-#: NavigationSounds/__init__.py:95
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:112
 msgid "Disable typing sounds"
 msgstr "Вимкнути звуки введення"
 
-#: NavigationSounds/__init__.py:97
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:114
 msgid "Enable typing sounds"
 msgstr "Увімкнути звуки введення"
 
-#: NavigationSounds/__init__.py:100
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:117
 msgid ""
 "Pressing it once toggles between on and off object sounds, and Pressing "
 "twice  it toggles between on and off typing sounds."
 msgstr ""
-"Одноразове натискання вмикає й вимикає звуки об’єктів, а подвійне "
-"натискання вмикає й вимикає звуки введення."
+"Одноразове натискання вмикає й вимикає звуки об’єктів, а подвійне натискання "
+"вмикає й вимикає звуки введення."
 
-#: NavigationSounds/__init__.py:108
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:125
 msgid "select sound"
 msgstr "вибрати звук"
 
-#: NavigationSounds/__init__.py:112
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:129
 msgid "say roles"
 msgstr "промовляти ролі"
 
-#: NavigationSounds/__init__.py:116
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:131
+msgid "say states"
+msgstr "промовляти стани"
+
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:135
 msgid "keyboard typing sound"
 msgstr "звук набору тексту на клавіатурі"
 
-#: NavigationSounds/__init__.py:118
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:137
 msgid "enable typing sound in text boxes only"
 msgstr "увімкнути звук введення лише в текстових полях"
 
-#: NavigationSounds/__init__.py:120
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:139
 msgid "select typing sound"
 msgstr "вибрати звук введення"
 
-#: NavigationSounds/__init__.py:124
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:143
 msgid "volume"
 msgstr "гучність"
 
-#: NavigationSounds/__init__.py:128
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:147
 msgid "open sounds folder"
 msgstr "відкрити папку звуків"
 
-#: NavigationSounds/__init__.py:130
+#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:149
 msgid "donate"
 msgstr "пожертвувати"
 
