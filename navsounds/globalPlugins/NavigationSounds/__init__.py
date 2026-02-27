@@ -14,6 +14,12 @@ from gui import SettingsPanel, NVDASettingsDialog, guiHelper
 import addonHandler
 addonHandler.initTranslation()
 
+try:
+    STATE_EDITABLE = controlTypes.State.EDITABLE
+    STATE_READONLY = controlTypes.State.READONLY
+except AttributeError:
+    STATE_EDITABLE = controlTypes.STATE_EDITABLE
+    STATE_READONLY = controlTypes.STATE_READONLY
 
 sounds1 = {}
 roleSECTION = "NavigationSounds"
@@ -94,8 +100,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 loc1(), choice(os.listdir(loc1()))), 1)
 
     def editable(self, object):
-        controls = (8, 52, 82)
-        return (object.role in controls or controlTypes .STATE_EDITABLE in object.states) and not controlTypes .STATE_READONLY in object.states
+        controls = [8, 52, 82]
+        if hasattr(controlTypes, "Role"):
+            if hasattr(controlTypes.Role, "EDITABLETEXT"):
+                controls.append(controlTypes.Role.EDITABLETEXT)
+            if hasattr(controlTypes.Role, "TERMINAL"):
+                controls.append(controlTypes.Role.TERMINAL)
+            if hasattr(controlTypes.Role, "INPUTCOMPOSITION"):
+                controls.append(controlTypes.Role.INPUTCOMPOSITION)
+
+        return (object.role in controls or STATE_EDITABLE in object.states) and not STATE_READONLY in object.states
 
     def event_typedCharacter(self, obj, nextHandler, ch):
         if config.conf[roleSECTION]["edit"]:
