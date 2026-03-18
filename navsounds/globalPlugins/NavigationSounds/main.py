@@ -15,7 +15,7 @@ from speech.commands import SpeechCommand
 import ui
 
 from .audio import MultiPlayerManager
-from .browser import BrowseModeQuickNav
+from .browser import BrowseModeQuickNavInterceptor
 from .settings import NavSettingsPanel
 
 
@@ -55,12 +55,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if NavSettingsPanel not in NVDASettingsDialog.categoryClasses:
             NVDASettingsDialog.categoryClasses.append(NavSettingsPanel)
 
-        self.browser = BrowseModeQuickNav(self.play_browser)
+        self.old = speech.speech.getPropertiesSpeech
+        self.audio_manager = MultiPlayerManager(self.role_section["volume"])
+
+        self.browser = BrowseModeQuickNavInterceptor(self.audio_manager)
         if self.role_section["browser"]:
             self.browser.patch()
 
-        self.old = speech.speech.getPropertiesSpeech
-        self.audio_manager = MultiPlayerManager(self.role_section["volume"])
         self.cache_sounds()
 
     @property
@@ -102,7 +103,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             if sound_dir.parent.name == "navsounds":
                 prefix = "nav"
             elif sound_dir.parent.name == "browsersounds":
-                prefix = "browser"
+                prefix = self.browser.prefix
             elif sound_dir.parent.name == "typingsound":
                 prefix = "type"
             else:
@@ -135,12 +136,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if self.type_sounds:
             sound_id = choice(self.type_sounds_list)
             self.audio_manager.play(sound_id)
-
-    def play_browser(self, sound_id: str) -> None:
-        if not self.role_section["browser"]:
-            return
-
-        self.audio_manager.play(sound_id)
 
     def _check_and_play_nav(self, name: str) -> bool:
         cache_key = f"nav_{name}"

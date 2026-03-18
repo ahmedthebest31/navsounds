@@ -6,12 +6,18 @@ from browseMode import BrowseModeTreeInterceptor
 from inputCore import InputGesture
 import textInfos
 
+from .audio import MultiPlayerManager
 
-class BrowseModeQuickNav:
 
-    def __init__(self, play_func: Callable[[str], None]):
-        self.play = play_func
+class BrowseModeQuickNavInterceptor:
+
+    def __init__(self, audio_manager: MultiPlayerManager):
+        self.audio_manager = audio_manager
         self.orig_quick_nav_script: Optional[Callable[..., Any]] = None
+
+    @property
+    def prefix(self) -> str:
+        return "browser"
 
     def patch(self) -> None:
         self.orig_quick_nav_script = getattr(BrowseModeTreeInterceptor, "_quickNavScript", None)
@@ -56,7 +62,7 @@ class BrowseModeQuickNav:
                 new_selection = make_text_info(textInfos.POSITION_CARET)
 
             if not old_info.compareEndPoints(new_selection, "startToStart") == 0:
-                self.play(f"browser_{itemType}")
+                self.audio_manager.play(f"{self.prefix}_{itemType}")
 
         setattr(BrowseModeTreeInterceptor, "_quickNavScript", patched_quick_nav_script)
 
