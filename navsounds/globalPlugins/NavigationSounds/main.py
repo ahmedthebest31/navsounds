@@ -15,6 +15,7 @@ from speech.commands import SpeechCommand
 import ui
 
 from .audio import MultiPlayerManager
+from .browser import BrowseModeQuickNav
 from .settings import NavSettingsPanel
 
 
@@ -31,6 +32,8 @@ confspec = {
     "typing": "boolean(default=true)",
     "type": "string(default=1blueSwitch)",
     "edit": "boolean(default=false)",
+    "browser": "boolean(default=true)",
+    "browsertype": "string(default=3d)",
     "volume": "integer(default=50)"
 }
 
@@ -51,6 +54,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         NavSettingsPanel.main_plugin = self
         if NavSettingsPanel not in NVDASettingsDialog.categoryClasses:
             NVDASettingsDialog.categoryClasses.append(NavSettingsPanel)
+
+        self.browser = BrowseModeQuickNav(self.play_browser)
+        if self.role_section["browser"]:
+            self.browser.patch()
 
         self.old = speech.speech.getPropertiesSpeech
         self.audio_manager = MultiPlayerManager(self.role_section["volume"])
@@ -80,18 +87,34 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             raise ValueError("saved settings sound type for typing not found")
         return Path(self.main_paths / "effects" / "typingsound" / typing_type)
 
+    @property
+    def loc_browser_sounds(self) -> Path:
+        browser_type = self.role_section["browsertype"]
+        if not browser_type:
+            raise ValueError("saved settings sounds type for browser quick nav not found")
+        return Path(self.main_paths / "effects" / "browsersounds" / browser_type)
+
     def cache_sounds(self) -> None:
-        for sound_dir in (self.loc_nav_sounds, self.loc_type_sounds,):
+        for sound_dir in (self.loc_nav_sounds, self.loc_type_sounds, self.loc_browser_sounds,):
             if not sound_dir.is_dir():
                 continue
 
-            prefix = "type" if sound_dir.parent.name == "typingsound" else "nav"
+            if sound_dir.parent.name == "navsounds":
+                prefix = "nav"
+            elif sound_dir.parent.name == "browsersounds":
+                prefix = "browser"
+            elif sound_dir.parent.name == "typingsound":
+                prefix = "type"
+            else:
+                raise ValueError("Sound type folder not found")
+
             sound_files = list(sound_dir.glob("*.wav"))
             for sound_file in sound_files:
                 name = f"{prefix}_{sound_file.stem.lower()}"
                 self.audio_manager.preload_sound(name, sound_file)
 
         self.nav_sounds = {k for k in self.audio_manager.cache if k.startswith("nav")}
+        self.browser_sounds = {k for k in self.audio_manager.cache if k.startswith("browser")}
         self.type_sounds = {k for k in self.audio_manager.cache if k.startswith("type")}
         self.type_sounds_list = list(self.type_sounds)
 
@@ -112,6 +135,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if self.type_sounds:
             sound_id = choice(self.type_sounds_list)
             self.audio_manager.play(sound_id)
+
+    def play_browser(self, sound_id: str) -> None:
+        if not self.role_section["browser"]:
+            return
+
+        self.audio_manager.play(sound_id)
 
     def _check_and_play_nav(self, name: str) -> bool:
         cache_key = f"nav_{name}"
@@ -203,6 +232,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def terminate(self) -> None:
         speech.speech.getPropertiesSpeech = self.old
+        self.browser.terminate()
         self.audio_manager.clear_all()
 
         try:
