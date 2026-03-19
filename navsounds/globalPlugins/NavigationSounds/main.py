@@ -15,6 +15,7 @@ from speech.commands import SpeechCommand
 import ui
 
 from .audio import MultiPlayerManager
+from .browser import BrowseModeQuickNavInterceptor
 from .settings import NavSettingsPanel
 
 
@@ -31,6 +32,8 @@ confspec = {
     "typing": "boolean(default=true)",
     "type": "string(default=1blueSwitch)",
     "edit": "boolean(default=false)",
+    "browser": "boolean(default=true)",
+    "browsertype": "string(default=3d)",
     "volume": "integer(default=50)"
 }
 
@@ -54,6 +57,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
         self.old = speech.speech.getPropertiesSpeech
         self.audio_manager = MultiPlayerManager(self.role_section["volume"])
+
+        self.browser = BrowseModeQuickNavInterceptor(self.audio_manager)
+        if self.role_section["browser"]:
+            self.browser.patch()
+
         self.cache_sounds()
 
     @property
@@ -80,18 +88,34 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             raise ValueError("saved settings sound type for typing not found")
         return Path(self.main_paths / "effects" / "typingsound" / typing_type)
 
+    @property
+    def loc_browser_sounds(self) -> Path:
+        browser_type = self.role_section["browsertype"]
+        if not browser_type:
+            raise ValueError("saved settings sounds type for browser quick nav not found")
+        return Path(self.main_paths / "effects" / "browsersounds" / browser_type)
+
     def cache_sounds(self) -> None:
-        for sound_dir in (self.loc_nav_sounds, self.loc_type_sounds,):
+        for sound_dir in (self.loc_nav_sounds, self.loc_type_sounds, self.loc_browser_sounds,):
             if not sound_dir.is_dir():
                 continue
 
-            prefix = "type" if sound_dir.parent.name == "typingsound" else "nav"
+            if sound_dir.parent.name == "navsounds":
+                prefix = "nav"
+            elif sound_dir.parent.name == "browsersounds":
+                prefix = self.browser.prefix
+            elif sound_dir.parent.name == "typingsound":
+                prefix = "type"
+            else:
+                raise ValueError("Sound type folder not found")
+
             sound_files = list(sound_dir.glob("*.wav"))
             for sound_file in sound_files:
                 name = f"{prefix}_{sound_file.stem.lower()}"
                 self.audio_manager.preload_sound(name, sound_file)
 
         self.nav_sounds = {k for k in self.audio_manager.cache if k.startswith("nav")}
+        self.browser_sounds = {k for k in self.audio_manager.cache if k.startswith("browser")}
         self.type_sounds = {k for k in self.audio_manager.cache if k.startswith("type")}
         self.type_sounds_list = list(self.type_sounds)
 
@@ -134,7 +158,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         nextHandler()
 
     def event_gainFocus(self, obj: NVDAObjects.NVDAObject, nextHandler: Callable[[], None]) -> None:
-        speech.speech.getPropertiesSpeech = self.old if self.say_states or self.say_roles else self.get_property2_speech
+        if not self.say_states or not self.say_roles:
+            speech.speech.getPropertiesSpeech = self.get_property2_speech
+        else:
+            speech.speech.getPropertiesSpeech = self.old
 
         if self.cfg_sounds:
             played = False
@@ -170,7 +197,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             }
 
             for state in to_remove:
-                kwargs["states"].discard(state)
+                if isinstance(states, set):
+                    kwargs["states"].discard(state)
+                elif isinstance(states, list):
+                    kwargs["states"].remove(state)
 
         return self.old(reason, **kwargs)
 
@@ -203,6 +233,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def terminate(self) -> None:
         speech.speech.getPropertiesSpeech = self.old
+        self.browser.terminate()
         self.audio_manager.clear_all()
 
         try:
