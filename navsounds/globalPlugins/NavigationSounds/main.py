@@ -158,7 +158,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         nextHandler()
 
     def event_gainFocus(self, obj: NVDAObjects.NVDAObject, nextHandler: Callable[[], None]) -> None:
-        speech.speech.getPropertiesSpeech = self.old if self.say_states or self.say_roles else self.get_property2_speech
+        if not self.say_states or not self.say_roles:
+            speech.speech.getPropertiesSpeech = self.get_property2_speech
+        else:
+            speech.speech.getPropertiesSpeech = self.old
 
         if self.cfg_sounds:
             played = False
@@ -194,7 +197,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             }
 
             for state in to_remove:
-                kwargs["states"].discard(state)
+                if isinstance(states, set):
+                    kwargs["states"].discard(state)
+                elif isinstance(states, list):
+                    kwargs["states"].remove(state)
 
         return self.old(reason, **kwargs)
 
