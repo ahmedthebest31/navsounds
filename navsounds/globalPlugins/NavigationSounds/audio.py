@@ -1,117 +1,75 @@
-import queue
+import os
 from pathlib import Path
-import threading
-from typing import Optional
-import wave
-
+from ctypes import *
 from logHandler import log
-import nvwave
 
-
-class SoundWorker(threading.Thread):
-
-    def __init__(self) -> None:
-        super().__init__(daemon=True)
-
-        self.queue: queue.Queue = queue.Queue()
-        self.start()
-
-    def play(self, player: nvwave.WavePlayer, data: bytes) -> None:
-        self.queue.put((player, data,))
-
-    def run(self) -> None:
-        while True:
-            player, data = self.queue.get()
-            try:
-                player.stop()
-                player.feed(data)
-            except RuntimeError as error:
-                log.error("Playback error NVDA nvwave: %s", str(error))
-            except TypeError:
-                log.error("Incorrect data sent to player.feed")
-
-            self.queue.task_done()
-
-
-class AudioCache:
-
-    def __init__(self, sound_file: Path):
-        self._params = None
-        self._data = None
-
-        with wave.open(str(sound_file), "rb") as wf:
-            self._params = (wf.getnchannels(), wf.getsampwidth(), wf.getframerate(),)
-            self._data = wf.readframes(wf.getnframes())
-
-    @property
-    def params(self) -> tuple[int, int, int]:
-        if self._params is None:
-            raise ValueError("Audio parameters not set")
-        return self._params
-
-    @property
-    def data(self) -> bytes:
-        if self._data is None:
-            raise ValueError("Audio data bytes not set")
-        return self._data
-
+# BASS Constants
+BASS_UNICODE = 0x80000000
+BASS_STREAM_AUTOFREE = 0x40000
+BASS_ATTRIB_VOL = 2
 
 class MultiPlayerManager:
-
     def __init__(self, volume: int) -> None:
-        self.volume: int = volume
-        self.cache: dict[str, AudioCache] = {}
-        self.format_players: dict[tuple[int, int, int], nvwave.WavePlayer] = {}
+        self.volume: float = volume / 100.0
+        self.cache: dict[str, Path] = {}
+        self.bass = None
+        self._init_bass()
 
-        self.worker = SoundWorker()
+    def _init_bass(self):
+        try:
+            dll_path = str(Path(__file__).resolve().parent / "bass.dll")
+            if not os.path.exists(dll_path):
+                log.error(f"NavigationSounds: bass.dll not found at {dll_path}")
+                return
+            
+            # Use windll for stdcall calling convention
+            self.bass = windll.LoadLibrary(dll_path)
+            
+            # Set argtypes for safety
+            self.bass.BASS_Init.argtypes = [c_int, c_uint32, c_uint32, c_void_p, c_void_p]
+            self.bass.BASS_StreamCreateFile.argtypes = [c_bool, c_wchar_p, c_uint64, c_uint64, c_uint32]
+            self.bass.BASS_StreamCreateFile.restype = c_uint32
+            self.bass.BASS_ChannelSetAttribute.argtypes = [c_uint32, c_uint32, c_float]
+            self.bass.BASS_ChannelPlay.argtypes = [c_uint32, c_bool]
+            self.bass.BASS_Free.argtypes = []
+            self.bass.BASS_ErrorGetCode.restype = c_int
+
+            # Initialize BASS with default device, 44100Hz
+            if not self.bass.BASS_Init(-1, 44100, 0, None, None):
+                error_code = self.bass.BASS_ErrorGetCode()
+                if error_code != 14:  # 14 = already initialized
+                    log.error(f"NavigationSounds: BASS_Init failed with error {error_code}")
+                    self.bass = None
+        except Exception as e:
+            log.error(f"NavigationSounds: Failed to load or initialize BASS: {e}")
+            self.bass = None
 
     def preload_sound(self, name: str, sound_file: Path) -> None:
         if sound_file.exists():
-            try:
-                self.cache[name] = AudioCache(sound_file)
-            except OSError as error:
-                log.warning("Error reading file '%s': %s", str(sound_file), str(error))
-
-    def _get_player_for_format(self, params: tuple[int, int, int]) -> Optional[nvwave.WavePlayer]:
-        if params not in self.format_players:
-            channels, sampwidth, framerate = params
-            try:
-                player = nvwave.WavePlayer(
-                    channels=channels,
-                    samplesPerSec=framerate,
-                    bitsPerSample=sampwidth * 8,
-                )
-                player.setVolume(all=self.volume / 100)
-                self.format_players[params] = player
-
-            except (RuntimeError, OSError) as error:
-                log.error("Failed to initialize audio device: %s", str(error))
-                return None
-
-            except (ValueError, KeyError, TypeError) as error:
-                log.error("Incorrect audio or configuration settings: %s", str(error))
-                return None
-
-        player = self.format_players[params]
-        return player
+            self.cache[name] = sound_file
 
     def play(self, sound_id: str) -> None:
-        if sound_id not in self.cache:
+        if not self.bass or sound_id not in self.cache:
             return
 
-        sound = self.cache[sound_id]
-        player = self._get_player_for_format(sound.params)
-
-        if player:
-            self.worker.play(player, sound.data)
+        sound_path = str(self.cache[sound_id])
+        
+        # Create a stream from the file
+        handle = self.bass.BASS_StreamCreateFile(False, sound_path, 0, 0, BASS_UNICODE | BASS_STREAM_AUTOFREE)
+        if handle != 0:
+            self.bass.BASS_ChannelSetAttribute(handle, BASS_ATTRIB_VOL, self.volume)
+            self.bass.BASS_ChannelPlay(handle, True)
+        else:
+            error_code = self.bass.BASS_ErrorGetCode()
+            log.error(f"NavigationSounds: BASS_StreamCreateFile failed for {sound_path} with error {error_code}")
 
     def update_volume(self, volume: int) -> None:
-        for player in self.format_players.values():
-            player.setVolume(all=volume / 100)
+        self.volume = volume / 100.0
 
     def clear_all(self) -> None:
-        for player in self.format_players.values():
-            player.stop()
+        # BASS handles its own stream cleanup with AUTOFREE
+        pass
 
-        self.format_players.clear()
-        self.cache.clear()
+    def terminate(self):
+        if self.bass:
+            self.bass.BASS_Free()
