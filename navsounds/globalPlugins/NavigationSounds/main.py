@@ -109,7 +109,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             else:
                 raise ValueError("Sound type folder not found")
 
-            sound_files = list(sound_dir.glob("*.wav"))
+            sound_files = list(sound_dir.glob("*.ogg"))
             for sound_file in sound_files:
                 name = f"{prefix}_{sound_file.stem.lower()}"
                 self.audio_manager.preload_sound(name, sound_file)
@@ -234,7 +234,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def terminate(self) -> None:
         speech.speech.getPropertiesSpeech = self.old
         self.browser.terminate()
-        self.audio_manager.clear_all()
+        self.audio_manager.terminate()
 
         try:
             NVDASettingsDialog.categoryClasses.remove(NavSettingsPanel)
