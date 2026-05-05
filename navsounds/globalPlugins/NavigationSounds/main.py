@@ -15,7 +15,6 @@ from speech.commands import SpeechCommand
 import ui
 
 from .audio import MultiPlayerManager
-from .browser import BrowseModeQuickNavInterceptor
 from .settings import NavSettingsPanel
 
 
@@ -32,8 +31,6 @@ confspec = {
     "typing": "boolean(default=true)",
     "type": "string(default=1blueSwitch)",
     "edit": "boolean(default=false)",
-    "browser": "boolean(default=true)",
-    "browsertype": "string(default=3d)",
     "volume": "integer(default=50)"
 }
 
@@ -55,13 +52,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if NavSettingsPanel not in NVDASettingsDialog.categoryClasses:
             NVDASettingsDialog.categoryClasses.append(NavSettingsPanel)
 
-        self.old = speech.speech.getPropertiesSpeech
+        self.old_getPropertiesSpeech = speech.speech.getPropertiesSpeech
+        speech.speech.getPropertiesSpeech = self.get_property2_speech
+        
         self.audio_manager = MultiPlayerManager(self.role_section["volume"])
-
-        self.browser = BrowseModeQuickNavInterceptor(self.audio_manager)
-        if self.role_section["browser"]:
-            self.browser.patch()
-
         self.cache_sounds()
 
     @property
@@ -88,34 +82,24 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             raise ValueError("saved settings sound type for typing not found")
         return Path(self.main_paths / "effects" / "typingsound" / typing_type)
 
-    @property
-    def loc_browser_sounds(self) -> Path:
-        browser_type = self.role_section["browsertype"]
-        if not browser_type:
-            raise ValueError("saved settings sounds type for browser quick nav not found")
-        return Path(self.main_paths / "effects" / "browsersounds" / browser_type)
-
     def cache_sounds(self) -> None:
-        for sound_dir in (self.loc_nav_sounds, self.loc_type_sounds, self.loc_browser_sounds,):
+        for sound_dir in (self.loc_nav_sounds, self.loc_type_sounds,):
             if not sound_dir.is_dir():
                 continue
 
             if sound_dir.parent.name == "navsounds":
                 prefix = "nav"
-            elif sound_dir.parent.name == "browsersounds":
-                prefix = self.browser.prefix
             elif sound_dir.parent.name == "typingsound":
                 prefix = "type"
             else:
                 raise ValueError("Sound type folder not found")
 
-            sound_files = list(sound_dir.glob("*.ogg"))
+            sound_files = list(sound_dir.glob("*.wav"))
             for sound_file in sound_files:
                 name = f"{prefix}_{sound_file.stem.lower()}"
                 self.audio_manager.preload_sound(name, sound_file)
 
         self.nav_sounds = {k for k in self.audio_manager.cache if k.startswith("nav")}
-        self.browser_sounds = {k for k in self.audio_manager.cache if k.startswith("browser")}
         self.type_sounds = {k for k in self.audio_manager.cache if k.startswith("type")}
         self.type_sounds_list = list(self.type_sounds)
 
@@ -126,13 +110,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def play_nav(self, sound_id: str) -> None:
         if not self.cfg_sounds:
             return
-
         self.audio_manager.play(sound_id)
 
     def play_typing(self, _: str) -> None:
         if not self.role_section["typing"]:
             return
-
         if self.type_sounds:
             sound_id = choice(self.type_sounds_list)
             self.audio_manager.play(sound_id)
@@ -154,28 +136,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 self.play_typing(ch)
         else:
             self.play_typing(ch)
-
-        nextHandler()
-
-    def event_gainFocus(self, obj: NVDAObjects.NVDAObject, nextHandler: Callable[[], None]) -> None:
-        if not self.say_states or not self.say_roles:
-            speech.speech.getPropertiesSpeech = self.get_property2_speech
-        else:
-            speech.speech.getPropertiesSpeech = self.old
-
-        if self.cfg_sounds:
-            played = False
-            if obj.states:
-                for state in obj.states:
-                    name = State(state).name.replace("_", "").lower()
-                    played = self._check_and_play_nav(name)
-                    if played:
-                        break
-
-            if not played:
-                name = Role(obj.role).name.replace("_", "").lower()
-                self._check_and_play_nav(name)
-
         nextHandler()
 
     def get_property2_speech(
@@ -186,23 +146,36 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         role = kwargs.get("role", None)
         states = kwargs.get("states", None)
 
+        if self.cfg_sounds and reason == OutputReason.QUERY:
+            played = False
+            if states:
+                for state in states:
+                    name = State(state).name.replace("_", "").lower()
+                    if self._check_and_play_nav(name):
+                        played = True
+                        break
+
+            if not played and role is not None:
+                name = Role(role).name.replace("_", "").lower()
+                self._check_and_play_nav(name)
+
         if role is not None and not self.say_roles:
             if "nav_" + Role(role).name.replace("_", "").lower() in self.nav_sounds:
-                del kwargs["role"]
+                if "role" in kwargs:
+                    del kwargs["role"]
 
         if states and not self.say_states:
             to_remove = {
                 state for state in states
                 if "nav_" + State(state).name.replace("_", "").lower() in self.nav_sounds
             }
-
             for state in to_remove:
                 if isinstance(states, set):
                     kwargs["states"].discard(state)
                 elif isinstance(states, list):
                     kwargs["states"].remove(state)
 
-        return self.old(reason, **kwargs)
+        return self.old_getPropertiesSpeech(reason, **kwargs)
 
     @script(gesture="kb:NVDA+alt+n")
     def script_toggle(self, unused_gesture: inputCore.InputGesture) -> None:
@@ -232,8 +205,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     )
 
     def terminate(self) -> None:
-        speech.speech.getPropertiesSpeech = self.old
-        self.browser.terminate()
+        speech.speech.getPropertiesSpeech = self.old_getPropertiesSpeech
         self.audio_manager.terminate()
 
         try:

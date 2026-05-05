@@ -24,18 +24,15 @@ class NavSettingsPanel(SettingsPanel):
             raise ValueError("The plugin is not transferred to the settings panel")
 
         base_sounds_dir = self.main_plugin.main_paths / "effects"
-        browser_sounds_dir = base_sounds_dir / "browsersounds"
         nav_sounds_dir = base_sounds_dir / "navsounds"
         type_sounds_dir = base_sounds_dir / "typingsound"
-        browser_sounds = [p.name for p in browser_sounds_dir.iterdir() if p.is_dir()]
+        
         nav_sounds = [p.name for p in nav_sounds_dir.iterdir() if p.is_dir()]
         type_sounds = [p.name for p in type_sounds_dir.iterdir() if p.is_dir()]
 
         sizer_helper = guiHelper.BoxSizerHelper(self, sizer=sizer)
-        sizer_helper.addItem(wx.StaticText(
-            self, label=_("select sound"), name="ts"
-        ))
-
+        
+        sizer_helper.addItem(wx.StaticText(self, label=_("select sound"), name="ts"))
         self.sou = sizer_helper.addItem(wx.Choice(self, name="ts"))
         self.sou.Set(nav_sounds)
         self.sou.SetStringSelection(self.main_plugin.role_section["soundType"])
@@ -55,31 +52,17 @@ class NavSettingsPanel(SettingsPanel):
         self.edit = sizer_helper.addItem(wx.CheckBox(self, label=_("enable typing sound in text boxes only")))
         self.edit.SetValue(self.main_plugin.role_section["edit"])
 
-        sizer_helper.addItem(wx.StaticText(
-            self, label=_("select typing sound"), name="tt"
-        ))
+        sizer_helper.addItem(wx.StaticText(self, label=_("select typing sound"), name="tt"))
         self.sou1 = sizer_helper.addItem(wx.Choice(self, name="tt"))
         self.sou1.Set(type_sounds)
         self.sou1.SetStringSelection(self.main_plugin.role_section["type"])
 
-        self.tb = sizer_helper.addItem(wx.CheckBox(self, label=_("Browser quick nav sounds")))
-        self.tb.SetValue(self.main_plugin.role_section["browser"])
-        sizer_helper.addItem(wx.StaticText(
-            self, label=_("select browser quick nav sounds"), name="tt2"
-        ))
-
-        self.sou2 = sizer_helper.addItem(wx.Choice(self, name="tt2"))
-        self.sou2.Set(browser_sounds)
-        self.sou2.SetStringSelection(self.main_plugin.role_section["browsertype"])
-
-        sizer_helper.addItem(
-            wx.StaticText(self, label=_("volume"), name="tt3")
-        )
-        self.sou3 = sizer_helper.addItem(wx.SpinCtrl(self, name="tt3", min=0, max=100))
-        self.sou3.SetValue(self.main_plugin.role_section["volume"])
+        sizer_helper.addItem(wx.StaticText(self, label=_("volume"), name="tt3"))
+        self.sou3 = sizer_helper.addItem(wx.Slider(self, name="tt3", value=self.main_plugin.role_section["volume"], minValue=0, maxValue=100, style=wx.SL_HORIZONTAL))
 
         b = sizer_helper.addItem(wx.Button(self, label=_("open sounds folder")))
         b.Bind(wx.EVT_BUTTON, self.onopen)
+        
         donate = sizer_helper.addItem(wx.Button(self, label=_("donate")))
         donate.Bind(wx.EVT_BUTTON, self.ondonate)
 
@@ -104,12 +87,11 @@ class NavSettingsPanel(SettingsPanel):
         self.main_plugin.role_section["cfgSounds"] = self.nab.GetValue()
         self.main_plugin.cfg_sounds = self.main_plugin.role_section["cfgSounds"]
 
-        self.main_plugin.role_section["browser"] = self.tb.GetValue()
         self.main_plugin.role_section["typing"] = self.ts.GetValue()
         self.main_plugin.role_section["edit"] = self.edit.GetValue()
 
         self.main_plugin.role_section["type"] = self.sou1.GetStringSelection()
-        self.main_plugin.role_section["browsertype"] = self.sou2.GetStringSelection()
+        
         self.main_plugin.role_section["volume"] = self.sou3.GetValue()
 
         self.main_plugin.reload_audio()
