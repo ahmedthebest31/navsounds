@@ -1,27 +1,24 @@
-# nav Sounds
-This is an NVDA screen reader add-on that 
-providing navigation sounds and keyboard typing sounds. 
-You can hear different sounds based on the roles of the elements you interact with,
-Also allow you to play different keyboard sound as you type.
-with the ability to customize everything.
-
+# âm thanh điều hướng
+Đây là một tiện ích bổ sung của trình đọc màn hình NVDA. 
+cung cấp âm thanh điều hướng và âm thanh gõ bàn phím. 
+Bạn có thể nghe thấy các âm thanh khác nhau dựa trên vai trò của các yếu tố bạn tương tác,
+Đồng thời cho phép bạn phát âm thanh bàn phím khác nhau khi bạn gõ.
+với khả năng tùy chỉnh mọi thứ.
  
-## About
+## giới thiệu
 
+Tiện ích bổ sung này được lấy cảm hứng từ tiện ích bổ sung "objsounds" bị bỏ rơi do Tyler Spivey tạo ra. Vì tiện ích bổ sung đó đã lâu không được cập nhật nên tôi quyết định tạo tiện ích bổ sung này để tiếp tục cung cấp chức năng tương tự đồng thời theo kịp những thay đổi trong trình đọc màn hình NVDA.
 
-This add-on is inspired by the abandoned "objsounds" add-on created by Tyler Spivey. Since that add-on hasn't been updated for a long time, I decided to create this add-on to continue providing similar functionality while keeping up with the changes in the NVDA screen reader.
-
-created by Ahmed Samy (AhmedTheBest)
+được tạo bởi Ahmed Samy (AhmedTheBest)
 email: ahmedthebest31@gmail.com
-with a Contribution from mesteranas
+với sự đóng góp từ mesteranas
 [github]("https://github.com/ahmedthebest31/navsounds")
-[donation]("https://www.paypal.me/ahmedthebest31")
+[đóng góp]("https://www.paypal.me/ahmedthebest31")
 
-Easily switch between enabling and disabling object sounds and   keyboard typing sound   with a simple keyboard gesture NVDA+alt+n and you can customize it as you want from open nvda menue Preferences  subMenu / Input gestures navigation sounds.   
-Access a settings page where you can choose from various navigation sound packages / keyboard typing sound effects and configure additional options.
- includes a selection of sound packages / typing keyboard sound effects, and you can even create and add your custom packages.
+Dễ dàng chuyển đổi giữa bật và tắt âm thanh đối tượng và âm thanh gõ bàn phím bằng cử chỉ bàn phím đơn giản NVDA+alt+n và bạn có thể tùy chỉnh nó theo ý muốn từ menu con Tùy chọn mở nvda trình đơn / tùy chọn  trình đơn con / quản lí thao tác âm thanh điều hướng.   
+Truy cập trang cài đặt nơi bạn có thể chọn từ nhiều gói âm thanh điều hướng / hiệu ứng âm thanh gõ bàn phím khác nhau và định cấu hình các tùy chọn bổ sung.
+ bao gồm tuyển tập các gói âm thanh / hiệu ứng âm thanh bàn phím gõ và thậm chí bạn có thể tạo và thêm các gói tùy chỉnh của mình.
 
+Đóng góp cho dự án này đều được chào đón! Nếu bạn tìm thấy lỗi, có ý tưởng cải tiến hoặc muốn đóng góp theo bất kỳ cách nào khác, vui lòng mở vấn đề hoặc gửi yêu cầu kéo.
 
-Contributions to this project are welcome! If you find a bug, have an idea for an improvement, or want to contribute in any other way, please feel free to open an issue or submit a pull request.
-
-Special thanks to  [mesteranas](https://github.com/mesteranas/) for his wonderful Contributions in developing this add-on with me.
+Cảm ơn đặc biệt đến  [mesteranas](https://github.com/mesteranas/) vì những đóng góp tuyệt vời của anh ấy trong việc cùng tôi phát triển tiện ích bổ sung này.
