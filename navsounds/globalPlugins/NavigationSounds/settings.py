@@ -94,8 +94,8 @@ class NavSettingsPanel(SettingsPanel):
         
         self.main_plugin.role_section["volume"] = self.sou3.GetValue()
 
-        self.main_plugin.reload_audio()
         self.main_plugin.audio_manager.update_volume(self.main_plugin.role_section["volume"])
+        self.main_plugin.reload_audio()
 
     def ondonate(self, _: wx.Event) -> None:
         ui.message("please wait")
