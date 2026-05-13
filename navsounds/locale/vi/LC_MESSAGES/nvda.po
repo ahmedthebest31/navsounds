@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2026-05-06 14:56+0700\n"
-"PO-Revision-Date: 2026-05-06 15:11+0700\n"
+"PO-Revision-Date: 2026-05-13 16:59+0700\n"
 "Last-Translator: nguyenninhhoang <nguyenninhhoang2005@gmail.com>\n"
 "Language-Team: \n"
 "Language: vi\n"
@@ -20,7 +20,7 @@ msgstr ""
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:122
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:133
 msgid "navigation sounds"
-msgstr "Âm thanh điều hướng"
+msgstr "âm thanh điều hướng"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:106
 msgid "Disable navigation sounds"
@@ -32,7 +32,7 @@ msgstr "Bật âm thanh điều hướng"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:112
 msgid "Disable typing sounds"
-msgstr "Tắt âm thanh gõ "
+msgstr "Tắt âm thanh gõ"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:114
 msgid "Enable typing sounds"
@@ -48,19 +48,19 @@ msgstr ""
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:125
 msgid "select sound"
-msgstr "Chọn âm thanh"
+msgstr "chọn âm thanh"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:129
 msgid "say roles"
-msgstr "Nói vai trò"
+msgstr "nói vai trò"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:131
 msgid "say states"
-msgstr "Nói tình trạng"
+msgstr "nói tình trạng"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:135
 msgid "keyboard typing sound"
-msgstr "Âm thanh gõ bàn phím"
+msgstr "âm thanh gõ bàn phím"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:137
 msgid "enable typing sound in text boxes only"
@@ -68,7 +68,7 @@ msgstr "chỉ bật âm thanh gõ trong hộp văn bản"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:139
 msgid "select typing sound"
-msgstr "Chọn âm thanh gõ"
+msgstr "chọn âm thanh gõ"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:143
 msgid "volume"
@@ -80,4 +80,4 @@ msgstr "mở thư mục âm thanh"
 
 #: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:149
 msgid "donate"
-msgstr "Quyên góp"
+msgstr "quyên góp"
