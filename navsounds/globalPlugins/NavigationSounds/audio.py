@@ -1,52 +1,83 @@
+import array
 import queue
-from pathlib import Path
 import threading
-from typing import Optional
 import wave
+from pathlib import Path
+from typing import Optional
 
+import config
 from logHandler import log
 import nvwave
 
+def get_output_device() -> str:
+    try:
+        return config.conf["audio"]["outputDevice"]
+    except KeyError:
+        try:
+            return config.conf["speech"]["outputDevice"]
+        except KeyError:
+            return "Microsoft Sound Mapper"
 
 class SoundWorker(threading.Thread):
 
-    def __init__(self) -> None:
+    def __init__(self, manager):
         super().__init__(daemon=True)
-
-        self.queue: queue.Queue = queue.Queue()
+        self.manager = manager
+        self.queue = queue.Queue(maxsize=1)
         self.start()
 
     def play(self, player: nvwave.WavePlayer, data: bytes) -> None:
-        self.queue.put((player, data,))
+        try:
+            self.queue.get_nowait()
+        except queue.Empty:
+            pass
+        
+        try:
+            self.queue.put_nowait((player, data))
+        except queue.Full:
+            pass
 
     def run(self) -> None:
         while True:
             task = self.queue.get()
             if task is None:
-                self.queue.task_done()
                 break
                 
             player, data = task
             try:
+                for p in self.manager.format_players.values():
+                    if p is not player:
+                        p.stop()
+                
                 player.stop()
                 player.feed(data)
-            except RuntimeError as error:
-                log.error("Playback error NVDA nvwave: %s", str(error))
-            except TypeError:
-                log.error("Incorrect data sent to player.feed")
-
-            self.queue.task_done()
+            except Exception as error:
+                log.error("Playback error: %s", str(error))
 
 
 class AudioCache:
 
-    def __init__(self, sound_file: Path):
+    def __init__(self, sound_file: Path, volume: int):
         self._params = None
         self._data = None
 
         with wave.open(str(sound_file), "rb") as wf:
-            self._params = (wf.getnchannels(), wf.getsampwidth(), wf.getframerate(),)
-            self._data = wf.readframes(wf.getnframes())
+            self._params = (wf.getnchannels(), wf.getsampwidth(), wf.getframerate())
+            raw_data = wf.readframes(wf.getnframes())
+            sampwidth = wf.getsampwidth()
+            
+            if sampwidth == 2:
+                samples = array.array('h', raw_data)
+                vol = max(0, min(100, volume))
+                factor = vol / 100.0
+                
+                for i in range(len(samples)):
+                    val = int(samples[i] * factor)
+                    samples[i] = max(-32768, min(32767, val))
+                    
+                self._data = samples.tobytes()
+            else:
+                self._data = raw_data
 
     @property
     def params(self) -> tuple[int, int, int]:
@@ -67,17 +98,25 @@ class MultiPlayerManager:
         self.volume: int = volume
         self.cache: dict[str, AudioCache] = {}
         self.format_players: dict[tuple[int, int, int], nvwave.WavePlayer] = {}
-
-        self.worker = SoundWorker()
+        self._last_device = get_output_device()
+        self.worker = SoundWorker(self)
 
     def preload_sound(self, name: str, sound_file: Path) -> None:
         if sound_file.exists():
             try:
-                self.cache[name] = AudioCache(sound_file)
+                self.cache[name] = AudioCache(sound_file, self.volume)
             except OSError as error:
                 log.warning("Error reading file '%s': %s", str(sound_file), str(error))
 
     def _get_player_for_format(self, params: tuple[int, int, int]) -> Optional[nvwave.WavePlayer]:
+        current_device = get_output_device()
+        
+        
+        
+        if self._last_device != current_device:
+            self.clear_players()
+            self._last_device = current_device
+
         if params not in self.format_players:
             channels, sampwidth, framerate = params
             try:
@@ -85,20 +124,15 @@ class MultiPlayerManager:
                     channels=channels,
                     samplesPerSec=framerate,
                     bitsPerSample=sampwidth * 8,
+                    outputDevice=current_device
                 )
-                player.setVolume(all=self.volume / 100)
                 self.format_players[params] = player
 
-            except (RuntimeError, OSError) as error:
-                log.error("Failed to initialize audio device: %s", str(error))
+            except Exception as error:
+                log.error("Failed to init audio device: %s", str(error))
                 return None
 
-            except (ValueError, KeyError, TypeError) as error:
-                log.error("Incorrect audio or configuration settings: %s", str(error))
-                return None
-
-        player = self.format_players[params]
-        return player
+        return self.format_players[params]
 
     def play(self, sound_id: str) -> None:
         if sound_id not in self.cache:
@@ -111,17 +145,20 @@ class MultiPlayerManager:
             self.worker.play(player, sound.data)
 
     def update_volume(self, volume: int) -> None:
-        for player in self.format_players.values():
-            player.setVolume(all=volume / 100)
+        self.volume = volume
 
-    def clear_all(self) -> None:
+    def clear_players(self) -> None:
         for player in self.format_players.values():
             player.stop()
-
         self.format_players.clear()
+
+    def clear_all(self) -> None:
+        self.clear_players()
         self.cache.clear()
 
     def terminate(self) -> None:
         self.clear_all()
-        self.worker.queue.put(None)
-        self.worker.join()
+        try:
+            self.worker.queue.put_nowait(None)
+        except queue.Full:
+            pass

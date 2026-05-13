@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 from random import choice
 from typing import Any, Callable
@@ -47,6 +48,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.cfg_sounds = self.role_section["cfgSounds"]
         self.say_roles = self.role_section["sayRoles"]
         self.say_states = self.role_section["sayStates"]
+        
+        # متغير لتتبع وقت آخر حرف تم كتابته لمنع التكرار اللانهائي
+        self._last_type_time = 0.0
 
         NavSettingsPanel.main_plugin = self
         if NavSettingsPanel not in NVDASettingsDialog.categoryClasses:
@@ -115,6 +119,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def play_typing(self, _: str) -> None:
         if not self.role_section["typing"]:
             return
+            
+        # تطبيق الـ Debounce لمنع الـ Spamming عند تعليق الزر
+        now = time.time()
+        if now - self._last_type_time < 0.07:
+            return
+        self._last_type_time = now
+
         if self.type_sounds:
             sound_id = choice(self.type_sounds_list)
             self.audio_manager.play(sound_id)
