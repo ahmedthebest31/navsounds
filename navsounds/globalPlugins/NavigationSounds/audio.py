@@ -111,8 +111,10 @@ class MultiPlayerManager:
     def _get_player_for_format(self, params: tuple[int, int, int]) -> Optional[nvwave.WavePlayer]:
         current_device = get_output_device()
         
+        
+        
         if self._last_device != current_device:
-            self.clear_all()
+            self.clear_players()
             self._last_device = current_device
 
         if params not in self.format_players:
@@ -145,10 +147,13 @@ class MultiPlayerManager:
     def update_volume(self, volume: int) -> None:
         self.volume = volume
 
-    def clear_all(self) -> None:
+    def clear_players(self) -> None:
         for player in self.format_players.values():
             player.stop()
         self.format_players.clear()
+
+    def clear_all(self) -> None:
+        self.clear_players()
         self.cache.clear()
 
     def terminate(self) -> None:
