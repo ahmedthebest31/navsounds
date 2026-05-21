@@ -10,7 +10,6 @@ from gui import guiHelper
 from gui.settingsDialogs import SettingsPanel
 import ui
 
-
 addonHandler.initTranslation()
 _: Callable[[str], str]
 
@@ -46,6 +45,9 @@ class NavSettingsPanel(SettingsPanel):
         self.nab = sizer_helper.addItem(wx.CheckBox(self, label=_("navigation sounds")))
         self.nab.SetValue(self.main_plugin.role_section["cfgSounds"])
 
+        self.mouse_cb = sizer_helper.addItem(wx.CheckBox(self, label=_("play sounds on mouse hover")))
+        self.mouse_cb.SetValue(self.main_plugin.role_section.get("mouseSounds", False))
+
         self.ts = sizer_helper.addItem(wx.CheckBox(self, label=_("keyboard typing sound")))
         self.ts.SetValue(self.main_plugin.role_section["typing"])
 
@@ -78,6 +80,7 @@ class NavSettingsPanel(SettingsPanel):
             raise ValueError("The plugin is not transferred to the settings panel")
 
         self.main_plugin.role_section["soundType"] = self.sou.GetStringSelection()
+        
         self.main_plugin.role_section["sayRoles"] = self.nar.GetValue()
         self.main_plugin.say_roles = self.main_plugin.role_section["sayRoles"]
 
@@ -86,6 +89,8 @@ class NavSettingsPanel(SettingsPanel):
 
         self.main_plugin.role_section["cfgSounds"] = self.nab.GetValue()
         self.main_plugin.cfg_sounds = self.main_plugin.role_section["cfgSounds"]
+
+        self.main_plugin.role_section["mouseSounds"] = self.mouse_cb.GetValue()
 
         self.main_plugin.role_section["typing"] = self.ts.GetValue()
         self.main_plugin.role_section["edit"] = self.edit.GetValue()
