@@ -17,6 +17,7 @@ import ui
 
 from .audio import MultiPlayerManager
 from .settings import NavSettingsPanel
+from .browser import BrowseModeQuickNavInterceptor
 
 
 addonHandler.initTranslation()
@@ -49,8 +50,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.say_roles = self.role_section["sayRoles"]
         self.say_states = self.role_section["sayStates"]
         
-        # متغير لتتبع وقت آخر حرف تم كتابته لمنع التكرار اللانهائي
+        # حماية الـ Debounce موجودة للحفاظ على الأداء
         self._last_type_time = 0.0
+        self._last_nav_time = 0.0
 
         NavSettingsPanel.main_plugin = self
         if NavSettingsPanel not in NVDASettingsDialog.categoryClasses:
@@ -61,6 +63,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         
         self.audio_manager = MultiPlayerManager(self.role_section["volume"])
         self.cache_sounds()
+
+        self.browser_interceptor = BrowseModeQuickNavInterceptor(self)
+        if self.cfg_sounds:
+            self.browser_interceptor.patch()
 
     @property
     def role_section(self) -> dict[str, Any]:
@@ -114,6 +120,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def play_nav(self, sound_id: str) -> None:
         if not self.cfg_sounds:
             return
+            
+        # تطبيق خوارزمية الـ Debounce لحماية كارت الصوت من الطوابير الوهمية
+        now = time.time()
+        if now - self._last_nav_time < 0.06:
+            return
+        self._last_nav_time = now
+
         self.audio_manager.play(sound_id)
 
     def play_typing(self, _: str) -> None:
@@ -149,6 +162,23 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.play_typing(ch)
         nextHandler()
 
+    # دمج الـ Focus Logic السليم بتاع حمزة
+    def event_gainFocus(self, obj: NVDAObjects.NVDAObject, nextHandler: Callable[[], None]) -> None:
+        if self.cfg_sounds:
+            played = False
+            if obj.states:
+                for state in obj.states:
+                    name = State(state).name.replace("_", "").lower()
+                    if self._check_and_play_nav(name):
+                        played = True
+                        break
+
+            if not played:
+                name = Role(obj.role).name.replace("_", "").lower()
+                self._check_and_play_nav(name)
+
+        nextHandler()
+
     def get_property2_speech(
             self,
             reason: NVDAObjects.controlTypes.OutputReason = OutputReason.QUERY,
@@ -156,19 +186,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     ) -> list[SpeechCommand | str]:
         role = kwargs.get("role", None)
         states = kwargs.get("states", None)
-
-        if self.cfg_sounds and reason == OutputReason.QUERY:
-            played = False
-            if states:
-                for state in states:
-                    name = State(state).name.replace("_", "").lower()
-                    if self._check_and_play_nav(name):
-                        played = True
-                        break
-
-            if not played and role is not None:
-                name = Role(role).name.replace("_", "").lower()
-                self._check_and_play_nav(name)
 
         if role is not None and not self.say_roles:
             if "nav_" + Role(role).name.replace("_", "").lower() in self.nav_sounds:
@@ -197,8 +214,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.cfg_sounds = not self.cfg_sounds
             if self.cfg_sounds is False:
                 ui.message(_("Disable navigation sounds"))
+                self.browser_interceptor.terminate()
             else:
                 ui.message(_("Enable navigation sounds"))
+                self.browser_interceptor.patch()
 
         elif is_same_script == 1:
             cfg_typing = not cfg_typing
@@ -217,6 +236,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def terminate(self) -> None:
         speech.speech.getPropertiesSpeech = self.old_getPropertiesSpeech
+        self.browser_interceptor.terminate()
         self.audio_manager.terminate()
 
         try:
