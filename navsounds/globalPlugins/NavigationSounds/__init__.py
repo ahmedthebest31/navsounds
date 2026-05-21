@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 from random import choice
 from typing import Any, Callable
@@ -21,13 +22,13 @@ from .browser import BrowseModeQuickNavInterceptor
 addonHandler.initTranslation()
 _: Callable[[str], str]
 
-
 ROLE_SECTION = "NavigationSounds"
 confspec = {
     "sayRoles": "boolean(default=false)",
     "sayStates": "boolean(default=true)",
     "soundType": "string(default=default)",
     "cfgSounds": "boolean(default=true)",
+    "mouseSounds": "boolean(default=false)",
     "typing": "boolean(default=true)",
     "type": "string(default=1blueSwitch)",
     "edit": "boolean(default=false)",
@@ -36,7 +37,6 @@ confspec = {
 
 if config.conf is not None:
     config.conf.spec[ROLE_SECTION] = confspec
-
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     scriptCategory = _("navigation sounds")
@@ -47,6 +47,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.cfg_sounds = self.role_section["cfgSounds"]
         self.say_roles = self.role_section["sayRoles"]
         self.say_states = self.role_section["sayStates"]
+        
+        self._last_type_time = 0.0
+        self._last_nav_time = 0.0
+        self._last_mouse_obj = None
 
         NavSettingsPanel.main_plugin = self
         if NavSettingsPanel not in NVDASettingsDialog.categoryClasses:
@@ -114,11 +118,23 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def play_nav(self, sound_id: str) -> None:
         if not self.cfg_sounds:
             return
+            
+        now = time.time()
+        if now - self._last_nav_time < 0.06:
+            return
+        self._last_nav_time = now
+
         self.audio_manager.play(sound_id)
 
     def play_typing(self, _: str) -> None:
         if not self.role_section["typing"]:
             return
+            
+        now = time.time()
+        if now - self._last_type_time < 0.07:
+            return
+        self._last_type_time = now
+
         if self.type_sounds:
             sound_id = choice(self.type_sounds_list)
             self.audio_manager.play(sound_id)
@@ -155,6 +171,25 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             if not played:
                 name = Role(obj.role).name.replace("_", "").lower()
                 self._check_and_play_nav(name)
+
+        nextHandler()
+
+    def event_mouseMove(self, obj: NVDAObjects.NVDAObject, nextHandler: Callable[[], None], x: int, y: int) -> None:
+        if self.role_section.get("mouseSounds", False):
+            if obj != getattr(self, "_last_mouse_obj", None):
+                self._last_mouse_obj = obj
+                
+                played = False
+                if obj.states:
+                    for state in obj.states:
+                        name = State(state).name.replace("_", "").lower()
+                        if self._check_and_play_nav(name):
+                            played = True
+                            break
+
+                if not played:
+                    name = Role(obj.role).name.replace("_", "").lower()
+                    self._check_and_play_nav(name)
 
         nextHandler()
 
