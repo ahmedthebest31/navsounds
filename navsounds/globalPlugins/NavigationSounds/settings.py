@@ -89,6 +89,10 @@ class NavSettingsPanel(SettingsPanel):
 
         self.main_plugin.role_section["cfgSounds"] = self.nab.GetValue()
         self.main_plugin.cfg_sounds = self.main_plugin.role_section["cfgSounds"]
+        if self.main_plugin.cfg_sounds:
+            self.main_plugin.browser_interceptor.patch()
+        else:
+            self.main_plugin.browser_interceptor.terminate()
 
         self.main_plugin.role_section["mouseSounds"] = self.mouse_cb.GetValue()
 
