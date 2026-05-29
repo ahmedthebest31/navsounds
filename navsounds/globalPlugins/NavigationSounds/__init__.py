@@ -19,7 +19,7 @@ import ui
 
 from .audio import MultiPlayerManager
 from .settings import NavSettingsPanel
-from .browser import BrowseModeQuickNavInterceptor
+from .browser import BrowseModeMoveListener
 
 addonHandler.initTranslation()
 _: Callable[[str], str]
@@ -52,7 +52,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         
         self._last_type_time = 0.0
         self._last_nav_time = 0.0
-        
+        self._last_mouse_time = 0.0
         self._last_mouse_obj = None
         self._mouse_timer = None
 
@@ -60,23 +60,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if NavSettingsPanel not in NVDASettingsDialog.categoryClasses:
             NVDASettingsDialog.categoryClasses.append(NavSettingsPanel)
 
-        self.old_getPropertiesSpeech = speech.speech.getPropertiesSpeech
-        speech.speech.getPropertiesSpeech = self.get_property2_speech
+        self._speech_module, self._speech_attr, self.old_getPropertiesSpeech = (
+            self._get_properties_speech_target()
+        )
+        setattr(self._speech_module, self._speech_attr, self.get_property2_speech)
         
         self.audio_manager = MultiPlayerManager(self.role_section["volume"])
         self.cache_sounds()
 
-        self._post_browseModeMove_handler_ref = self._post_browseModeMove_handler
-        self._has_vision_extension = False
-        try:
-            from vision import visionHandlerExtensionPoints
-            visionHandlerExtensionPoints.post_browseModeMove.register(self._post_browseModeMove_handler_ref)
-            self._has_vision_extension = True
-        except (ImportError, AttributeError):
-            pass
-
-        self.browser_interceptor = BrowseModeQuickNavInterceptor(self)
-        if self.cfg_sounds and not self._has_vision_extension:
+        self.browser_interceptor = BrowseModeMoveListener(self)
+        if self.cfg_sounds:
             self.browser_interceptor.patch()
 
     @property
@@ -159,40 +152,42 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return True
         return False
 
-    def _post_browseModeMove_handler(self, *args: Any, **kwargs: Any) -> None:
-        if not self.cfg_sounds:
-            return
+    @staticmethod
+    def _get_properties_speech_target() -> tuple[Any, str, Callable[..., list[SpeechCommand | str]]]:
+        get_properties_speech = getattr(speech, "getPropertiesSpeech", None)
+        if get_properties_speech is not None:
+            return speech, "getPropertiesSpeech", get_properties_speech
 
-        import textInfos
-        
-        try:
-            ti = None
-            if args:
-                ti = args[0]
-            if not ti:
-                ti = kwargs.get("treeInterceptor", None)
-                
-            if not ti:
-                import api
-                focus_obj = api.getFocusObject()
-                ti = getattr(focus_obj, "treeInterceptor", None)
-            
-            if not ti:
-                return
-                
-            info = ti.makeTextInfo(textInfos.POSITION_CARET)
-            obj = getattr(info, "focusableNVDAObjectAtStart", None)
-            if obj is None:
-                obj = getattr(info, "NVDAObjectAtStart", None)
+        legacy_speech_module = getattr(speech, "speech", None)
+        get_properties_speech = getattr(legacy_speech_module, "getPropertiesSpeech", None)
+        if get_properties_speech is not None:
+            return legacy_speech_module, "getPropertiesSpeech", get_properties_speech
 
-            if obj:
+        raise AttributeError("speech.getPropertiesSpeech is not available")
+
+    def _play_nav_for_object(self, obj: NVDAObjects.NVDAObject) -> bool:
+        if not self.cfg_sounds or obj is None:
+            return False
+
+        states = getattr(obj, "states", None)
+        if states:
+            for state in states:
                 try:
-                    name = Role(obj.role).name.replace("_", "").lower()
-                    self._check_and_play_nav(name)
+                    name = State(state).name.replace("_", "").lower()
                 except ValueError:
-                    pass
-        except Exception:
-            pass
+                    continue
+                if self._check_and_play_nav(name):
+                    return True
+
+        role = getattr(obj, "role", None)
+        if role is None:
+            return False
+
+        try:
+            name = Role(role).name.replace("_", "").lower()
+        except ValueError:
+            return False
+        return self._check_and_play_nav(name)
 
     def editable(self, obj: NVDAObjects.NVDAObject) -> bool:
         controls = (8, 52, 82,)
@@ -207,66 +202,31 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         nextHandler()
 
     def event_gainFocus(self, obj: NVDAObjects.NVDAObject, nextHandler: Callable[[], None]) -> None:
-        if self.cfg_sounds:
-            played = False
-            if obj.states:
-                for state in obj.states:
-                    try:
-                        name = State(state).name.replace("_", "").lower()
-                        if self._check_and_play_nav(name):
-                            played = True
-                            break
-                    except ValueError:
-                        continue
-
-            if not played:
-                try:
-                    name = Role(obj.role).name.replace("_", "").lower()
-                    self._check_and_play_nav(name)
-                except ValueError:
-                    pass
-
+        self._play_nav_for_object(obj)
         nextHandler()
 
     def _play_mouse_sound_delayed(self, obj: NVDAObjects.NVDAObject) -> None:
         if obj == getattr(self, "_last_mouse_obj", None):
-            played = False
-            if obj.states:
-                for state in obj.states:
-                    try:
-                        name = State(state).name.replace("_", "").lower()
-                        if self._check_and_play_nav(name):
-                            played = True
-                            break
-                    except ValueError:
-                        continue
-
-            if not played:
-                try:
-                    name = Role(obj.role).name.replace("_", "").lower()
-                    self._check_and_play_nav(name)
-                except ValueError:
-                    pass
+            self._play_nav_for_object(obj)
 
     def event_mouseMove(self, obj: NVDAObjects.NVDAObject, nextHandler: Callable[[], None], x: int, y: int) -> None:
         if self.role_section.get("mouseSounds", False):
             ignored_roles = {Role.DOCUMENT, Role.WINDOW, Role.PANE, Role.APPLICATION, Role.UNKNOWN}
-            
-            if obj.role not in ignored_roles:
-                if obj != getattr(self, "_last_mouse_obj", None):
-                    now = time.time()
-                    if now - getattr(self, "_last_mouse_time", 0.0) < 0.27:
-                        nextHandler()
-                        return
-                    
-                    self._last_mouse_time = now
-                    self._last_mouse_obj = obj
-                    
-                    if getattr(self, "_mouse_timer", None) is not None:
-                        self._mouse_timer.Stop()
-                        self._mouse_timer = None
-                    
-                    self._mouse_timer = wx.CallLater(270, self._play_mouse_sound_delayed, obj)
+
+            if getattr(obj, "role", None) not in ignored_roles and obj != getattr(self, "_last_mouse_obj", None):
+                now = time.time()
+                if now - self._last_mouse_time < 0.27:
+                    nextHandler()
+                    return
+
+                self._last_mouse_time = now
+                self._last_mouse_obj = obj
+
+                if self._mouse_timer is not None:
+                    self._mouse_timer.Stop()
+                    self._mouse_timer = None
+
+                self._mouse_timer = wx.CallLater(270, self._play_mouse_sound_delayed, obj)
 
         nextHandler()
 
@@ -312,12 +272,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.cfg_sounds = not self.cfg_sounds
             if self.cfg_sounds is False:
                 ui.message(_("Disable navigation sounds"))
-                if not self._has_vision_extension:
-                    self.browser_interceptor.terminate()
+                self.browser_interceptor.terminate()
             else:
                 ui.message(_("Enable navigation sounds"))
-                if not self._has_vision_extension:
-                    self.browser_interceptor.patch()
+                self.browser_interceptor.patch()
 
         elif is_same_script == 1:
             cfg_typing = not cfg_typing
@@ -335,20 +293,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     )
 
     def terminate(self) -> None:
-        speech.speech.getPropertiesSpeech = self.old_getPropertiesSpeech
+        setattr(self._speech_module, self._speech_attr, self.old_getPropertiesSpeech)
+        self.browser_interceptor.terminate()
         self.audio_manager.terminate()
         
-        if getattr(self, "_mouse_timer", None) is not None:
+        if self._mouse_timer is not None:
             self._mouse_timer.Stop()
-
-        if getattr(self, "_has_vision_extension", False):
-            try:
-                from vision import visionHandlerExtensionPoints
-                visionHandlerExtensionPoints.post_browseModeMove.unregister(self._post_browseModeMove_handler_ref)
-            except Exception:
-                pass
-        else:
-            self.browser_interceptor.terminate()
+            self._mouse_timer = None
 
         try:
             NVDASettingsDialog.categoryClasses.remove(NavSettingsPanel)
