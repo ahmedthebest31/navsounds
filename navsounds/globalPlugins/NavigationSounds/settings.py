@@ -47,6 +47,16 @@ class NavSettingsPanel(SettingsPanel):
 
         self.mouse_cb = sizer_helper.addItem(wx.CheckBox(self, label=_("play sounds on mouse hover")))
         self.mouse_cb.SetValue(self.main_plugin.role_section.get("mouseSounds", False))
+        self.mouse_cb.Bind(wx.EVT_CHECKBOX, self.on_mouse_cb_change)
+
+        self.mouse_delay_label = wx.StaticText(self, label=_("mouse hover delay (ms)"), name="mdl")
+        sizer_helper.addItem(self.mouse_delay_label)
+        self.mouse_delay_ctrl = sizer_helper.addItem(wx.SpinCtrl(self, name="mdl", min=50, max=2000))
+        self.mouse_delay_ctrl.SetValue(self.main_plugin.role_section.get("mouseHoverDelay", 270))
+
+        is_mouse_enabled = self.mouse_cb.GetValue()
+        self.mouse_delay_label.Enable(is_mouse_enabled)
+        self.mouse_delay_ctrl.Enable(is_mouse_enabled)
 
         self.ts = sizer_helper.addItem(wx.CheckBox(self, label=_("keyboard typing sound")))
         self.ts.SetValue(self.main_plugin.role_section["typing"])
@@ -71,6 +81,12 @@ class NavSettingsPanel(SettingsPanel):
     def postInit(self) -> None:
         self.sou.SetFocus()
 
+    def on_mouse_cb_change(self, evt: wx.Event) -> None:
+        is_enabled = self.mouse_cb.GetValue()
+        self.mouse_delay_label.Enable(is_enabled)
+        self.mouse_delay_ctrl.Enable(is_enabled)
+        evt.Skip()
+
     def onopen(self, _: wx.Event) -> None:
         effects_path = Path(__file__).resolve().parent / "effects"
         os.startfile(effects_path)
@@ -91,6 +107,7 @@ class NavSettingsPanel(SettingsPanel):
         self.main_plugin.cfg_sounds = self.main_plugin.role_section["cfgSounds"]
 
         self.main_plugin.role_section["mouseSounds"] = self.mouse_cb.GetValue()
+        self.main_plugin.role_section["mouseHoverDelay"] = self.mouse_delay_ctrl.GetValue()
 
         self.main_plugin.role_section["typing"] = self.ts.GetValue()
         self.main_plugin.role_section["edit"] = self.edit.GetValue()

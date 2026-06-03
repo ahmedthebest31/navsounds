@@ -31,6 +31,7 @@ confspec = {
     "soundType": "string(default=default)",
     "cfgSounds": "boolean(default=true)",
     "mouseSounds": "boolean(default=false)",
+    "mouseHoverDelay": "integer(default=270)",
     "typing": "boolean(default=true)",
     "type": "string(default=1blueSwitch)",
     "edit": "boolean(default=false)",
@@ -255,7 +256,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             if obj.role not in ignored_roles:
                 if obj != getattr(self, "_last_mouse_obj", None):
                     now = time.time()
-                    if now - getattr(self, "_last_mouse_time", 0.0) < 0.27:
+                    
+                    delay_ms = self.role_section.get("mouseHoverDelay", 270)
+                    delay_sec = delay_ms / 1000.0
+
+                    if now - getattr(self, "_last_mouse_time", 0.0) < delay_sec:
                         nextHandler()
                         return
                     
@@ -266,7 +271,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                         self._mouse_timer.Stop()
                         self._mouse_timer = None
                     
-                    self._mouse_timer = wx.CallLater(270, self._play_mouse_sound_delayed, obj)
+                    self._mouse_timer = wx.CallLater(delay_ms, self._play_mouse_sound_delayed, obj)
 
         nextHandler()
 
