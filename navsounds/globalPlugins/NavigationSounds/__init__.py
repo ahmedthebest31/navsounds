@@ -35,7 +35,8 @@ confspec = {
     "typing": "boolean(default=true)",
     "type": "string(default=1blueSwitch)",
     "edit": "boolean(default=false)",
-    "volume": "integer(default=50)"
+    "volume": "integer(default=50)",
+    "arrowNavSounds": "boolean(default=true)"
 }
 
 if config.conf is not None:
