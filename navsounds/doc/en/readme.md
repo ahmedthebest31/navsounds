@@ -14,8 +14,8 @@ This add-on is inspired by the abandoned "objsounds" add-on created by Tyler Spi
 created by Ahmed Samy (AhmedTheBest)
 email: ahmedthebest31@gmail.com
 with a Contribution from mesteranas
-[github]("https://github.com/ahmedthebest31/navsounds")
-[donation]("https://www.paypal.me/ahmedthebest31")
+[GitHub](https://github.com/ahmedthebest31/navsounds)
+[Donation](https://www.paypal.me/ahmedthebest31)
 
 Easily switch between enabling and disabling object sounds and   keyboard typing sound   with a simple keyboard gesture NVDA+alt+n and you can customize it as you want from open nvda menue Preferences  subMenu / Input gestures navigation sounds.   
 Access a settings page where you can choose from various navigation sound packages / keyboard typing sound effects and configure additional options.

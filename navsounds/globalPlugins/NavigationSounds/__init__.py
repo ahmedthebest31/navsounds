@@ -61,8 +61,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if NavSettingsPanel not in NVDASettingsDialog.categoryClasses:
             NVDASettingsDialog.categoryClasses.append(NavSettingsPanel)
 
-        self.old_getPropertiesSpeech = speech.speech.getPropertiesSpeech
-        speech.speech.getPropertiesSpeech = self.get_property2_speech
+        self.old_getPropertiesSpeech = getattr(speech.speech, "getPropertiesSpeech", None)
+        if self.old_getPropertiesSpeech is not None:
+            speech.speech.getPropertiesSpeech = self.get_property2_speech
         
         self.audio_manager = MultiPlayerManager(self.role_section["volume"])
         self.cache_sounds()
@@ -78,7 +79,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
         self.browser_interceptor = BrowseModeQuickNavInterceptor(self)
         if self.cfg_sounds and not self._has_vision_extension:
-            self.browser_interceptor.patch()
+            try:
+                self.browser_interceptor.patch()
+            except Exception:
+                pass
 
     @property
     def role_section(self) -> dict[str, Any]:
@@ -280,31 +284,34 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             reason: NVDAObjects.controlTypes.OutputReason = OutputReason.QUERY,
             **kwargs: Any,
     ) -> list[SpeechCommand | str]:
-        role = kwargs.get("role", None)
-        states = kwargs.get("states", None)
+        try:
+            role = kwargs.get("role", None)
+            states = kwargs.get("states", None)
 
-        if role is not None and not self.say_roles:
-            try:
-                if "nav_" + Role(role).name.replace("_", "").lower() in self.nav_sounds:
-                    if "role" in kwargs:
-                        del kwargs["role"]
-            except ValueError:
-                pass
-
-        if states and not self.say_states:
-            to_remove = set()
-            for state in states:
+            if role is not None and not self.say_roles:
                 try:
-                    if "nav_" + State(state).name.replace("_", "").lower() in self.nav_sounds:
-                        to_remove.add(state)
+                    if "nav_" + Role(role).name.replace("_", "").lower() in self.nav_sounds:
+                        if "role" in kwargs:
+                            del kwargs["role"]
                 except ValueError:
-                    continue
-                    
-            for state in to_remove:
-                if isinstance(states, set):
-                    kwargs["states"].discard(state)
-                elif isinstance(states, list):
-                    kwargs["states"].remove(state)
+                    pass
+
+            if states and not self.say_states:
+                to_remove = set()
+                for state in states:
+                    try:
+                        if "nav_" + State(state).name.replace("_", "").lower() in self.nav_sounds:
+                            to_remove.add(state)
+                    except ValueError:
+                        continue
+
+                if to_remove:
+                    if isinstance(states, set):
+                        kwargs = {k: (states - to_remove if k == "states" else v) for k, v in kwargs.items()}
+                    elif isinstance(states, list):
+                        kwargs = {k: ([s for s in states if s not in to_remove] if k == "states" else v) for k, v in kwargs.items()}
+        except Exception:
+            pass
 
         return self.old_getPropertiesSpeech(reason, **kwargs)
 
@@ -318,11 +325,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             if self.cfg_sounds is False:
                 ui.message(_("Disable navigation sounds"))
                 if not self._has_vision_extension:
-                    self.browser_interceptor.terminate()
+                    try:
+                        self.browser_interceptor.terminate()
+                    except Exception:
+                        pass
             else:
                 ui.message(_("Enable navigation sounds"))
                 if not self._has_vision_extension:
-                    self.browser_interceptor.patch()
+                    try:
+                        self.browser_interceptor.patch()
+                    except Exception:
+                        pass
 
         elif is_same_script == 1:
             cfg_typing = not cfg_typing
@@ -340,7 +353,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     )
 
     def terminate(self) -> None:
-        speech.speech.getPropertiesSpeech = self.old_getPropertiesSpeech
+        if self.old_getPropertiesSpeech is not None:
+            speech.speech.getPropertiesSpeech = self.old_getPropertiesSpeech
         self.audio_manager.terminate()
         
         if getattr(self, "_mouse_timer", None) is not None:
@@ -353,7 +367,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             except Exception:
                 pass
         else:
-            self.browser_interceptor.terminate()
+            try:
+                self.browser_interceptor.terminate()
+            except Exception:
+                pass
 
         try:
             NVDASettingsDialog.categoryClasses.remove(NavSettingsPanel)
