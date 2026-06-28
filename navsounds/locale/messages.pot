@@ -45,11 +45,11 @@ msgid "select sound"
 msgstr ""
 
 #: navsounds/globalPlugins/NavigationSounds/__init__.py
-msgid "say roles"
+msgid "say element roles"
 msgstr ""
 
 #: navsounds/globalPlugins/NavigationSounds/__init__.py
-msgid "say states"
+msgid "say element states"
 msgstr ""
 
 #: navsounds/globalPlugins/NavigationSounds/__init__.py
@@ -62,6 +62,10 @@ msgstr ""
 
 #: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "select typing sound"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
+msgid "play navigation sounds during arrow key navigation"
 msgstr ""
 
 #: navsounds/globalPlugins/NavigationSounds/__init__.py
