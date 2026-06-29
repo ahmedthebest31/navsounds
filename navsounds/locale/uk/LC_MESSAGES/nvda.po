@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-06-03 21:44+0300\n"
-"PO-Revision-Date: 2026-06-03 21:46+0300\n"
+"POT-Creation-Date: 2026-06-29 12:25+0300\n"
+"PO-Revision-Date: 2026-06-29 12:30+0300\n"
 "Last-Translator: Heorhii <nvda.translation.uk@gmail.com>\n"
 "Language-Team: \n"
 "Language: uk_UA\n"
@@ -13,29 +13,30 @@ msgstr ""
 "X-Poedit-Basepath: ../../../globalPlugins\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPath-1: .\n"
+"X-Poedit-SearchPath-2: .\n"
 
-#: NavigationSounds/__init__.py:45 NavigationSounds/settings.py:19
+#: NavigationSounds/__init__.py:46 NavigationSounds/settings.py:19
 #: NavigationSounds/settings.py:45
 msgid "navigation sounds"
 msgstr "звуки навігації"
 
-#: NavigationSounds/__init__.py:319
+#: NavigationSounds/__init__.py:327
 msgid "Disable navigation sounds"
 msgstr "Вимкнути звуки навігації"
 
-#: NavigationSounds/__init__.py:323
+#: NavigationSounds/__init__.py:334
 msgid "Enable navigation sounds"
 msgstr "Увімкнути звуки навігації"
 
-#: NavigationSounds/__init__.py:330
+#: NavigationSounds/__init__.py:344
 msgid "Disable typing sounds"
 msgstr "Вимкнути звуки введення"
 
-#: NavigationSounds/__init__.py:332
+#: NavigationSounds/__init__.py:346
 msgid "Enable typing sounds"
 msgstr "Увімкнути звуки введення"
 
-#: NavigationSounds/__init__.py:338
+#: NavigationSounds/__init__.py:352
 msgid ""
 "Pressing it once toggles between on and off object sounds, and Pressing "
 "twice  it toggles between on and off typing sounds."
@@ -48,12 +49,12 @@ msgid "select sound"
 msgstr "вибрати звук"
 
 #: NavigationSounds/settings.py:39
-msgid "say roles"
-msgstr "промовляти ролі"
+msgid "say element roles"
+msgstr "промовляти ролі елементів"
 
 #: NavigationSounds/settings.py:42
-msgid "say states"
-msgstr "промовляти стани"
+msgid "say element states"
+msgstr "промовляти стани елементів"
 
 #: NavigationSounds/settings.py:48
 msgid "play sounds on mouse hover"
@@ -67,23 +68,29 @@ msgstr "затримка при наведенні миші (мс)"
 msgid "keyboard typing sound"
 msgstr "звук набору тексту на клавіатурі"
 
-#: NavigationSounds/settings.py:64
+#: NavigationSounds/settings.py:65
 msgid "enable typing sound in text boxes only"
 msgstr "увімкнути звук введення лише в текстових полях"
 
-#: NavigationSounds/settings.py:67
+#: NavigationSounds/settings.py:68
 msgid "select typing sound"
 msgstr "вибрати звук введення"
 
-#: NavigationSounds/settings.py:72
+#: NavigationSounds/settings.py:79
+msgid "play navigation sounds during arrow key navigation"
+msgstr ""
+"відтворювати звуки навігації під час навігації за допомогою клавіш зі "
+"стрілками"
+
+#: NavigationSounds/settings.py:82
 msgid "volume"
 msgstr "гучність"
 
-#: NavigationSounds/settings.py:75
+#: NavigationSounds/settings.py:85
 msgid "open sounds folder"
 msgstr "відкрити папку звуків"
 
-#: NavigationSounds/settings.py:78
+#: NavigationSounds/settings.py:88
 msgid "donate"
 msgstr "пожертвувати"
 
