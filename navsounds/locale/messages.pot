@@ -16,64 +16,66 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: Poedit 3.9\n"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:67
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:122
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:133
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "navigation sounds"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:106
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "Disable navigation sounds"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:108
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "Enable navigation sounds"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:112
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "Disable typing sounds"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:114
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "Enable typing sounds"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:117
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds."
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:125
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "select sound"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:129
-msgid "say roles"
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
+msgid "say element roles"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:131
-msgid "say states"
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
+msgid "say element states"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:135
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "keyboard typing sound"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:137
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "enable typing sound in text boxes only"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:139
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "select typing sound"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:143
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
+msgid "play navigation sounds during arrow key navigation"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "volume"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:147
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "open sounds folder"
 msgstr ""
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:149
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "donate"
 msgstr ""

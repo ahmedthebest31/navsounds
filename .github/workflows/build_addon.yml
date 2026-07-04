@@ -1,0 +1,29 @@
+name: Build addon
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package addon
+        run: |
+          cd navsounds
+          zip -r ../navSounds-${{ github.ref_name }}.nvda-addon ./*
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: navSounds-addon
+          path: ./*.nvda-addon
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./*.nvda-addon
