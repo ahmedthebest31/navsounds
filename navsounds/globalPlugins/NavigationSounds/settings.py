@@ -36,10 +36,10 @@ class NavSettingsPanel(SettingsPanel):
         self.sou.Set(nav_sounds)
         self.sou.SetStringSelection(self.main_plugin.role_section["soundType"])
 
-        self.nar = sizer_helper.addItem(wx.CheckBox(self, label=_("say roles")))
+        self.nar = sizer_helper.addItem(wx.CheckBox(self, label=_("say element roles")))
         self.nar.SetValue(self.main_plugin.role_section["sayRoles"])
 
-        self.nas = sizer_helper.addItem(wx.CheckBox(self, label=_("say states")))
+        self.nas = sizer_helper.addItem(wx.CheckBox(self, label=_("say element states")))
         self.nas.SetValue(self.main_plugin.role_section["sayStates"])
 
         self.nab = sizer_helper.addItem(wx.CheckBox(self, label=_("navigation sounds")))
@@ -60,14 +60,24 @@ class NavSettingsPanel(SettingsPanel):
 
         self.ts = sizer_helper.addItem(wx.CheckBox(self, label=_("keyboard typing sound")))
         self.ts.SetValue(self.main_plugin.role_section["typing"])
+        self.ts.Bind(wx.EVT_CHECKBOX, self.on_typing_cb_change)
 
         self.edit = sizer_helper.addItem(wx.CheckBox(self, label=_("enable typing sound in text boxes only")))
         self.edit.SetValue(self.main_plugin.role_section["edit"])
 
-        sizer_helper.addItem(wx.StaticText(self, label=_("select typing sound"), name="tt"))
+        self.tt_label = wx.StaticText(self, label=_("select typing sound"), name="tt")
+        sizer_helper.addItem(self.tt_label)
         self.sou1 = sizer_helper.addItem(wx.Choice(self, name="tt"))
         self.sou1.Set(type_sounds)
         self.sou1.SetStringSelection(self.main_plugin.role_section["type"])
+
+        is_typing_enabled = self.ts.GetValue()
+        self.edit.Show(is_typing_enabled)
+        self.tt_label.Show(is_typing_enabled)
+        self.sou1.Show(is_typing_enabled)
+
+        self.arrow_nav_cb = sizer_helper.addItem(wx.CheckBox(self, label=_("play navigation sounds during arrow key navigation")))
+        self.arrow_nav_cb.SetValue(self.main_plugin.role_section.get("arrowNavSounds", True))
 
         sizer_helper.addItem(wx.StaticText(self, label=_("volume"), name="tt3"))
         self.sou3 = sizer_helper.addItem(wx.Slider(self, name="tt3", value=self.main_plugin.role_section["volume"], minValue=0, maxValue=100, style=wx.SL_HORIZONTAL))
@@ -80,6 +90,14 @@ class NavSettingsPanel(SettingsPanel):
 
     def postInit(self) -> None:
         self.sou.SetFocus()
+
+    def on_typing_cb_change(self, evt: wx.Event) -> None:
+        is_enabled = self.ts.GetValue()
+        self.edit.Show(is_enabled)
+        self.tt_label.Show(is_enabled)
+        self.sou1.Show(is_enabled)
+        self.Layout()
+        evt.Skip()
 
     def on_mouse_cb_change(self, evt: wx.Event) -> None:
         is_enabled = self.mouse_cb.GetValue()
@@ -114,6 +132,8 @@ class NavSettingsPanel(SettingsPanel):
 
         self.main_plugin.role_section["type"] = self.sou1.GetStringSelection()
         
+        self.main_plugin.role_section["arrowNavSounds"] = self.arrow_nav_cb.GetValue()
+
         self.main_plugin.role_section["volume"] = self.sou3.GetValue()
 
         self.main_plugin.audio_manager.update_volume(self.main_plugin.role_section["volume"])

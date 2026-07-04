@@ -88,6 +88,9 @@ class BrowseModeQuickNavInterceptor:
             if not self.plugin.cfg_sounds:
                 return
 
+            if not self.plugin.role_section.get("arrowNavSounds", True):
+                return
+
             try:
                 new_info = instance.makeTextInfo(textInfos.POSITION_CARET)
             except Exception:
