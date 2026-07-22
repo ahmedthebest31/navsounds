@@ -31,10 +31,12 @@ confspec = {
     "soundType": "string(default=default)",
     "cfgSounds": "boolean(default=true)",
     "mouseSounds": "boolean(default=false)",
+    "mouseHoverDelay": "integer(default=270)",
     "typing": "boolean(default=true)",
     "type": "string(default=1blueSwitch)",
     "edit": "boolean(default=false)",
-    "volume": "integer(default=50)"
+    "volume": "integer(default=50)",
+    "arrowNavSounds": "boolean(default=true)"
 }
 
 if config.conf is not None:
@@ -60,10 +62,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if NavSettingsPanel not in NVDASettingsDialog.categoryClasses:
             NVDASettingsDialog.categoryClasses.append(NavSettingsPanel)
 
-        self._speech_module, self._speech_attr, self.old_getPropertiesSpeech = (
-            self._get_properties_speech_target()
-        )
-        setattr(self._speech_module, self._speech_attr, self.get_property2_speech)
+        try:
+            self._speech_module, self._speech_attr, self.old_getPropertiesSpeech = (
+                self._get_properties_speech_target()
+            )
+            setattr(self._speech_module, self._speech_attr, self.get_property2_speech)
+        except Exception:
+            self.old_getPropertiesSpeech = getattr(speech.speech, "getPropertiesSpeech", None)
+            if self.old_getPropertiesSpeech is not None:
+                speech.speech.getPropertiesSpeech = self.get_property2_speech
         
         self.audio_manager = MultiPlayerManager(self.role_section["volume"])
         self.cache_sounds()
@@ -215,18 +222,21 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
             if getattr(obj, "role", None) not in ignored_roles and obj != getattr(self, "_last_mouse_obj", None):
                 now = time.time()
-                if now - self._last_mouse_time < 0.27:
+                delay_ms = self.role_section.get("mouseHoverDelay", 270)
+                delay_sec = delay_ms / 1000.0
+
+                if now - getattr(self, "_last_mouse_time", 0.0) < delay_sec:
                     nextHandler()
                     return
 
                 self._last_mouse_time = now
                 self._last_mouse_obj = obj
 
-                if self._mouse_timer is not None:
+                if getattr(self, "_mouse_timer", None) is not None:
                     self._mouse_timer.Stop()
                     self._mouse_timer = None
 
-                self._mouse_timer = wx.CallLater(270, self._play_mouse_sound_delayed, obj)
+                self._mouse_timer = wx.CallLater(delay_ms, self._play_mouse_sound_delayed, obj)
 
         nextHandler()
 
@@ -235,33 +245,38 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             reason: NVDAObjects.controlTypes.OutputReason = OutputReason.QUERY,
             **kwargs: Any,
     ) -> list[SpeechCommand | str]:
-        role = kwargs.get("role", None)
-        states = kwargs.get("states", None)
+        try:
+            role = kwargs.get("role", None)
+            states = kwargs.get("states", None)
 
-        if role is not None and not self.say_roles:
-            try:
-                if "nav_" + Role(role).name.replace("_", "").lower() in self.nav_sounds:
-                    if "role" in kwargs:
-                        del kwargs["role"]
-            except ValueError:
-                pass
-
-        if states and not self.say_states:
-            to_remove = set()
-            for state in states:
+            if role is not None and not self.say_roles:
                 try:
-                    if "nav_" + State(state).name.replace("_", "").lower() in self.nav_sounds:
-                        to_remove.add(state)
+                    if "nav_" + Role(role).name.replace("_", "").lower() in self.nav_sounds:
+                        if "role" in kwargs:
+                            del kwargs["role"]
                 except ValueError:
-                    continue
-                    
-            for state in to_remove:
-                if isinstance(states, set):
-                    kwargs["states"].discard(state)
-                elif isinstance(states, list):
-                    kwargs["states"].remove(state)
+                    pass
 
-        return self.old_getPropertiesSpeech(reason, **kwargs)
+            if states and not self.say_states:
+                to_remove = set()
+                for state in states:
+                    try:
+                        if "nav_" + State(state).name.replace("_", "").lower() in self.nav_sounds:
+                            to_remove.add(state)
+                    except ValueError:
+                        continue
+
+                if to_remove:
+                    if isinstance(states, set):
+                        kwargs = {k: (states - to_remove if k == "states" else v) for k, v in kwargs.items()}
+                    elif isinstance(states, list):
+                        kwargs = {k: ([s for s in states if s not in to_remove] if k == "states" else v) for k, v in kwargs.items()}
+        except Exception:
+            pass
+
+        if hasattr(self, "old_getPropertiesSpeech") and self.old_getPropertiesSpeech is not None:
+            return self.old_getPropertiesSpeech(reason, **kwargs)
+        return []
 
     @script(gesture="kb:NVDA+alt+n")
     def script_toggle(self, unused_gesture: inputCore.InputGesture) -> None:
@@ -272,10 +287,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.cfg_sounds = not self.cfg_sounds
             if self.cfg_sounds is False:
                 ui.message(_("Disable navigation sounds"))
-                self.browser_interceptor.terminate()
+                try:
+                    self.browser_interceptor.terminate()
+                except Exception:
+                    pass
             else:
                 ui.message(_("Enable navigation sounds"))
-                self.browser_interceptor.patch()
+                try:
+                    self.browser_interceptor.patch()
+                except Exception:
+                    pass
 
         elif is_same_script == 1:
             cfg_typing = not cfg_typing
@@ -293,8 +314,22 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     )
 
     def terminate(self) -> None:
-        setattr(self._speech_module, self._speech_attr, self.old_getPropertiesSpeech)
-        self.browser_interceptor.terminate()
+        if hasattr(self, "_speech_module") and hasattr(self, "_speech_attr") and hasattr(self, "old_getPropertiesSpeech"):
+            try:
+                setattr(self._speech_module, self._speech_attr, self.old_getPropertiesSpeech)
+            except Exception:
+                pass
+        elif hasattr(self, "old_getPropertiesSpeech") and self.old_getPropertiesSpeech is not None:
+            try:
+                speech.speech.getPropertiesSpeech = self.old_getPropertiesSpeech
+            except Exception:
+                pass
+
+        try:
+            self.browser_interceptor.terminate()
+        except Exception:
+            pass
+
         self.audio_manager.terminate()
         
         if self._mouse_timer is not None:

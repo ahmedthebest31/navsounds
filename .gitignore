@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.nvda-addon
+*.zip
+desktop.ini
+Thumbs.db
+.DS_Store
+*.log
+*.mo

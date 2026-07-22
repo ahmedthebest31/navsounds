@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
+import cursorManager
+from controlTypes import Role, State
 import textInfos
+from treeInterceptorHandler import BrowseModeTreeInterceptor
+
 try:
     from logHandler import log
 except ImportError:
@@ -14,36 +18,207 @@ except ImportError:
     vision = None
 
 
+class BrowseModeQuickNavInterceptor:
+    def __init__(self, plugin_instance: Any) -> None:
+        self.plugin = plugin_instance
+        self.orig_quick_nav_script: Optional[Any] = None
+        self.orig_caret_movement: Optional[Any] = None
+        self._patched_script_ref: Optional[Any] = None
+        self._patched_caret_ref: Optional[Any] = None
+
+    def patch(self) -> None:
+        if self._patched_script_ref is not None:
+            return
+
+        self.orig_quick_nav_script = getattr(BrowseModeTreeInterceptor, "_quickNavScript", None)
+
+        def patched_quick_nav_script(
+                instance: Any,
+                gesture: Any,
+                itemType: Any,
+                direction: Any,
+                errorMessage: Any,
+                readUnit: Any,
+                *args: Any,
+                **kwargs: Any
+        ) -> None:
+            if self.orig_quick_nav_script is None:
+                return
+
+            if not self.plugin.cfg_sounds:
+                self.orig_quick_nav_script(
+                    instance, gesture, itemType, direction, errorMessage, readUnit, *args, **kwargs
+                )
+                return
+
+            try:
+                selection = instance.selection
+            except Exception:
+                selection = None
+
+            if not selection and hasattr(instance, "makeTextInfo"):
+                try:
+                    selection = instance.makeTextInfo(textInfos.POSITION_CARET)
+                except Exception:
+                    pass
+
+            old_info = selection.copy() if selection else None
+
+            self.orig_quick_nav_script(
+                instance, gesture, itemType, direction, errorMessage, readUnit, *args, **kwargs
+            )
+
+            try:
+                new_selection = instance.selection
+            except Exception:
+                new_selection = None
+
+            if not new_selection and hasattr(instance, "makeTextInfo"):
+                try:
+                    new_selection = instance.makeTextInfo(textInfos.POSITION_CARET)
+                except Exception:
+                    pass
+
+            if old_info and new_selection:
+                if old_info.compareEndPoints(new_selection, "startToStart") != 0:
+                    self.plugin._check_and_play_nav(itemType)
+
+        self._patched_script_ref = patched_quick_nav_script
+        setattr(BrowseModeTreeInterceptor, "_quickNavScript", patched_quick_nav_script)
+
+        self.orig_caret_movement = getattr(cursorManager.CursorManager, "_caretMovementScriptHelper", None)
+
+        def patched_caret_movement(
+                instance: Any,
+                gesture: Any,
+                unit: Any,
+                *args: Any,
+                **kwargs: Any
+        ) -> None:
+            if self.orig_caret_movement is None:
+                return
+
+            try:
+                old_info = instance.makeTextInfo(textInfos.POSITION_CARET)
+            except Exception:
+                old_info = None
+
+            self.orig_caret_movement(instance, gesture, unit, *args, **kwargs)
+
+            if not self.plugin.cfg_sounds:
+                return
+
+            if not self.plugin.role_section.get("arrowNavSounds", True):
+                return
+
+            try:
+                new_info = instance.makeTextInfo(textInfos.POSITION_CARET)
+            except Exception:
+                return
+
+            if old_info and old_info.compareEndPoints(new_info, "startToStart") == 0:
+                return
+
+            obj = self._get_object_at_caret(instance)
+            if obj is None:
+                return
+
+            played = False
+            states = getattr(obj, "states", None)
+            if states:
+                for state in states:
+                    try:
+                        name = State(state).name.replace("_", "").lower()
+                    except ValueError:
+                        continue
+                    if self.plugin._check_and_play_nav(name):
+                        played = True
+                        break
+
+            if not played:
+                role = getattr(obj, "role", None)
+                if role is not None:
+                    try:
+                        name = Role(role).name.replace("_", "").lower()
+                        self.plugin._check_and_play_nav(name)
+                    except ValueError:
+                        pass
+
+        self._patched_caret_ref = patched_caret_movement
+        setattr(cursorManager.CursorManager, "_caretMovementScriptHelper", patched_caret_movement)
+
+    def _get_object_at_caret(self, instance: Any) -> Any:
+        if hasattr(instance, "currentNVDAObject"):
+            try:
+                return instance.currentNVDAObject
+            except Exception:
+                pass
+
+        if hasattr(instance, "makeTextInfo"):
+            try:
+                info = instance.makeTextInfo(textInfos.POSITION_CARET)
+                return info.focusableNVDAObjectAtStart
+            except Exception:
+                pass
+
+        return None
+
+    def terminate(self) -> None:
+        if self.orig_quick_nav_script and self._patched_script_ref:
+            current_script = getattr(BrowseModeTreeInterceptor, "_quickNavScript", None)
+            if current_script == self._patched_script_ref:
+                setattr(BrowseModeTreeInterceptor, "_quickNavScript", self.orig_quick_nav_script)
+
+        if self.orig_caret_movement and self._patched_caret_ref:
+            current_caret = getattr(cursorManager.CursorManager, "_caretMovementScriptHelper", None)
+            if current_caret == self._patched_caret_ref:
+                setattr(cursorManager.CursorManager, "_caretMovementScriptHelper", self.orig_caret_movement)
+
+
 class BrowseModeMoveListener:
     def __init__(self, plugin_instance: Any) -> None:
         self.plugin = plugin_instance
         self._extension_point: Optional[Any] = None
         self._registered = False
         self._logged_errors: set[str] = set()
+        self._fallback_interceptor: Optional[BrowseModeQuickNavInterceptor] = None
 
     def start(self) -> None:
         extension_point = self._get_extension_point()
-        if extension_point is None:
-            return
-        if self._registered and self._extension_point is extension_point:
-            return
-        if self._registered:
-            self.stop()
-        extension_point.register(self._on_browse_mode_move)
-        self._extension_point = extension_point
-        self._registered = True
+        if extension_point is not None:
+            if self._registered and self._extension_point is extension_point:
+                return
+            if self._registered:
+                self.stop()
+            try:
+                extension_point.register(self._on_browse_mode_move)
+                self._extension_point = extension_point
+                self._registered = True
+                return
+            except Exception:
+                self._log_exception_once("register", "Failed to register browse-mode move listener")
+
+        if self._fallback_interceptor is None:
+            self._fallback_interceptor = BrowseModeQuickNavInterceptor(self.plugin)
+        try:
+            self._fallback_interceptor.patch()
+        except Exception:
+            pass
 
     def stop(self) -> None:
-        if not self._registered or self._extension_point is None:
+        if self._registered and self._extension_point is not None:
+            try:
+                self._extension_point.unregister(self._on_browse_mode_move)
+            except Exception:
+                self._log_exception_once("unregister", "Failed to unregister browse-mode move listener")
             self._registered = False
             self._extension_point = None
-            return
-        try:
-            self._extension_point.unregister(self._on_browse_mode_move)
-        except Exception:
-            self._log_exception_once("unregister", "Failed to unregister browse-mode move listener")
-        self._registered = False
-        self._extension_point = None
+
+        if self._fallback_interceptor is not None:
+            try:
+                self._fallback_interceptor.terminate()
+            except Exception:
+                pass
 
     patch = start
     terminate = stop
