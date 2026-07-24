@@ -103,6 +103,7 @@ class BrowseModeQuickNavInterceptor:
 
             if old_info and new_selection:
                 if old_info.compareEndPoints(new_selection, "startToStart") != 0:
+                    self.plugin._browse_mode_move_fired = True
                     self.plugin._check_and_play_nav(itemType)
 
         self._patched_script_ref = patched_quick_nav_script
@@ -146,6 +147,7 @@ class BrowseModeQuickNavInterceptor:
                 if obj is None:
                     return
 
+                self.plugin._browse_mode_move_fired = True
                 played = False
                 states = getattr(obj, "states", None)
                 if states and State is not None:
@@ -265,6 +267,7 @@ class BrowseModeMoveListener:
             nav_obj = self._get_object_at_caret(cursor_manager)
             if nav_obj is None:
                 return
+            self.plugin._browse_mode_move_fired = True
             self.plugin._play_nav_for_object(nav_obj)
         except Exception:
             self._log_exception_once("dispatch", "Browse-mode navigation sound dispatch failed")
