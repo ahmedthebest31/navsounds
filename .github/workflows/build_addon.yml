@@ -48,7 +48,7 @@ jobs:
           cd navsounds
           zip -r ../navSounds-${{ github.ref_name }}.nvda-addon ./*
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: navSounds-addon
           path: ./*.nvda-addon
