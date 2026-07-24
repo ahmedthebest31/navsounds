@@ -1,0 +1,109 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "navSounds"
+version = "2.2.0"
+description = "NVDA add-on providing navigation and typing sound effects"
+readme = "readme.md"
+license = {text = "GPL-2.0-or-later"}
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Topic :: Accessibility",
+]
+
+[project.urls]
+Repository = "https://github.com/ahmedthebest31/navsounds"
+
+[tool.ruff]
+line-length = 120
+
+builtins = [
+    "_",        # translation lookup
+    "ngettext", # translation lookup
+    "pgettext", # translation lookup
+]
+
+[tool.ruff.format]
+indent-style = "tab"
+line-ending = "lf"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "T20", # flake8-print
+]
+
+ignore = [
+    "E501",    # line too long (handled by formatter)
+    "T201",    # print found (NVDA addons use print for debugging)
+    "UP007",   # use X | Y for union types (not compatible with older Python)
+    "UP035",   # import from collections.abc (not compatible with older Python)
+    "UP045",   # Optional[X] vs X | None (same reason)
+    "SIM102",  # nested if statements (existing pattern, works fine)
+    "SIM105",  # contextlib.suppress (existing try/except/pass is clearer for NVDA)
+    "SIM910",  # kwargs.get with None default (explicit is fine)
+    "I001",    # import sorting (NVDA imports have specific ordering requirements)
+    "B010",    # setattr with constant (required for monkey-patching in NVDA addons)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["T20"]
+
+[tool.pyright]
+pythonVersion = "3.11"
+pythonPlatform = "Windows"
+typeCheckingMode = "basic"
+venvPath = "."
+venv = "."
+
+extraPaths = [
+    "./navsounds",
+]
+
+include = [
+    "navsounds/**/*.py",
+    "tests/**/*.py",
+]
+
+exclude = [
+    "__pycache__",
+    ".venv",
+    "build",
+]
+
+reportMissingImports = false
+reportAttributeAccessIssue = false
+reportCallIssue = false
+reportGeneralTypeIssues = false
+reportOptionalMemberAccess = false
+reportOptionalOperand = false
+reportOptionalSubscript = false
+reportReturnType = false
+reportUnknownMemberType = false
+reportUnknownParameterType = false
+reportUnknownVariableType = false
+reportUnnecessaryTypeIgnoreComment = false
+reportUnusedExpression = false
+reportUnusedFunction = false
+reportUnusedVariable = false
+reportPrivateUsage = false
+reportUntypedClassDecorator = false
+reportUntypedFunctionDecorator = false
+
+[dependency-groups]
+test = [
+    "pytest>=9.1.1",
+]

@@ -105,6 +105,8 @@ def test_play_nav_for_object_prefers_first_state_sound(monkeypatch):
     plugin = SimpleNamespace(
         cfg_sounds=True,
         _check_and_play_nav=check_and_play,
+        _last_nav_obj=None,
+        _last_nav_time=0.0,
     )
 
     plugin_module.GlobalPlugin._play_nav_for_object(
@@ -131,6 +133,8 @@ def test_play_nav_for_object_falls_back_to_role(monkeypatch):
     plugin = SimpleNamespace(
         cfg_sounds=True,
         _check_and_play_nav=check_and_play,
+        _last_nav_obj=None,
+        _last_nav_time=0.0,
     )
 
     plugin_module.GlobalPlugin._play_nav_for_object(

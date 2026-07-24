@@ -51,7 +51,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.cfg_sounds = self.role_section["cfgSounds"]
         self.say_roles = self.role_section["sayRoles"]
         self.say_states = self.role_section["sayStates"]
-        
+
         self._last_type_time = 0.0
         self._last_nav_time = 0.0
         self._last_nav_obj = None
@@ -72,7 +72,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.old_getPropertiesSpeech = getattr(speech.speech, "getPropertiesSpeech", None)
             if self.old_getPropertiesSpeech is not None:
                 speech.speech.getPropertiesSpeech = self.get_property2_speech
-        
+
         self.audio_manager = MultiPlayerManager(self.role_section["volume"])
         self.cache_sounds()
 
@@ -132,7 +132,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def play_nav(self, sound_id: str) -> None:
         if not self.cfg_sounds:
             return
-            
+
         now = time.time()
         if now - self._last_nav_time < 0.06:
             return
@@ -143,7 +143,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def play_typing(self, _: str) -> None:
         if not self.role_section["typing"]:
             return
-            
+
         now = time.time()
         if now - self._last_type_time < 0.07:
             return
@@ -341,7 +341,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             pass
 
         self.audio_manager.terminate()
-        
+
         if self._mouse_timer is not None:
             self._mouse_timer.Stop()
             self._mouse_timer = None
