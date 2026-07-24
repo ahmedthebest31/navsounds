@@ -182,7 +182,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             getattr(obj, "windowHandle", None),
             getattr(obj, "windowControlID", None),
         )
-        if obj_id == self._last_nav_obj and (now - self._last_nav_time) < 0.5:
+        if obj_id == self._last_nav_obj and (now - self._last_nav_time) < 0.15:
             return False
         self._last_nav_obj = obj_id
 
