@@ -21,6 +21,11 @@ from .audio import MultiPlayerManager
 from .settings import NavSettingsPanel
 from .browser import BrowseModeMoveListener
 
+try:
+    from treeInterceptorHandler import BrowseModeTreeInterceptor
+except ImportError:
+    from browseMode import BrowseModeTreeInterceptor
+
 addonHandler.initTranslation()
 _: Callable[[str], str]
 
@@ -54,7 +59,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
         self._last_type_time = 0.0
         self._last_nav_time = 0.0
-        self._last_nav_obj = None
         self._last_mouse_time = 0.0
         self._last_mouse_obj = None
         self._mouse_timer = None
@@ -177,15 +181,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if not self.cfg_sounds or obj is None:
             return False
 
-        now = time.time()
-        obj_id = (
-            getattr(obj, "windowHandle", None),
-            getattr(obj, "windowControlID", None),
-        )
-        if obj_id == self._last_nav_obj and (now - self._last_nav_time) < 0.15:
-            return False
-        self._last_nav_obj = obj_id
-
         states = getattr(obj, "states", None)
         if states:
             for state in states:
@@ -219,8 +214,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         nextHandler()
 
     def event_gainFocus(self, obj: NVDAObjects.NVDAObject, nextHandler: Callable[[], None]) -> None:
+        if self.cfg_sounds and self._is_in_browse_mode(obj):
+            nextHandler()
+            return
         self._play_nav_for_object(obj)
         nextHandler()
+
+    def _is_in_browse_mode(self, obj: NVDAObjects.NVDAObject) -> bool:
+        try:
+            treeInterceptor = getattr(obj, "treeInterceptor", None)
+            if treeInterceptor is not None:
+                return isinstance(treeInterceptor, BrowseModeTreeInterceptor)
+        except (ImportError, AttributeError):
+            pass
+        return False
 
     def _play_mouse_sound_delayed(self, obj: NVDAObjects.NVDAObject) -> None:
         if obj == getattr(self, "_last_mouse_obj", None):
