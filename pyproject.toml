@@ -57,6 +57,7 @@ ignore = [
     "SIM910",  # kwargs.get with None default (explicit is fine)
     "I001",    # import sorting (NVDA imports have specific ordering requirements)
     "B010",    # setattr with constant (required for monkey-patching in NVDA addons)
+    "W191",    # indentation contains tabs (format.indent-style = "tab" is intentional)
 ]
 
 [tool.ruff.lint.per-file-ignores]
