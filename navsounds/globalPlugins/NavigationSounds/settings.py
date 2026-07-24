@@ -25,12 +25,12 @@ class NavSettingsPanel(SettingsPanel):
         base_sounds_dir = self.main_plugin.main_paths / "effects"
         nav_sounds_dir = base_sounds_dir / "navsounds"
         type_sounds_dir = base_sounds_dir / "typingsound"
-        
+
         nav_sounds = [p.name for p in nav_sounds_dir.iterdir() if p.is_dir()]
         type_sounds = [p.name for p in type_sounds_dir.iterdir() if p.is_dir()]
 
         sizer_helper = guiHelper.BoxSizerHelper(self, sizer=sizer)
-        
+
         sizer_helper.addItem(wx.StaticText(self, label=_("select sound"), name="ts"))
         self.sou = sizer_helper.addItem(wx.Choice(self, name="ts"))
         self.sou.Set(nav_sounds)
@@ -84,7 +84,7 @@ class NavSettingsPanel(SettingsPanel):
 
         b = sizer_helper.addItem(wx.Button(self, label=_("open sounds folder")))
         b.Bind(wx.EVT_BUTTON, self.onopen)
-        
+
         donate = sizer_helper.addItem(wx.Button(self, label=_("donate")))
         donate.Bind(wx.EVT_BUTTON, self.ondonate)
 
@@ -114,7 +114,7 @@ class NavSettingsPanel(SettingsPanel):
             raise ValueError("The plugin is not transferred to the settings panel")
 
         self.main_plugin.role_section["soundType"] = self.sou.GetStringSelection()
-        
+
         self.main_plugin.role_section["sayRoles"] = self.nar.GetValue()
         self.main_plugin.say_roles = self.main_plugin.role_section["sayRoles"]
 
@@ -123,6 +123,10 @@ class NavSettingsPanel(SettingsPanel):
 
         self.main_plugin.role_section["cfgSounds"] = self.nab.GetValue()
         self.main_plugin.cfg_sounds = self.main_plugin.role_section["cfgSounds"]
+        if self.main_plugin.cfg_sounds:
+            self.main_plugin.browser_interceptor.patch()
+        else:
+            self.main_plugin.browser_interceptor.terminate()
 
         self.main_plugin.role_section["mouseSounds"] = self.mouse_cb.GetValue()
         self.main_plugin.role_section["mouseHoverDelay"] = self.mouse_delay_ctrl.GetValue()
@@ -131,7 +135,7 @@ class NavSettingsPanel(SettingsPanel):
         self.main_plugin.role_section["edit"] = self.edit.GetValue()
 
         self.main_plugin.role_section["type"] = self.sou1.GetStringSelection()
-        
+
         self.main_plugin.role_section["arrowNavSounds"] = self.arrow_nav_cb.GetValue()
 
         self.main_plugin.role_section["volume"] = self.sou3.GetValue()

@@ -31,7 +31,7 @@ class SoundWorker(threading.Thread):
             self.queue.get_nowait()
         except queue.Empty:
             pass
-        
+
         try:
             self.queue.put_nowait((player, data))
         except queue.Full:
@@ -42,13 +42,13 @@ class SoundWorker(threading.Thread):
             task = self.queue.get()
             if task is None:
                 break
-                
+
             player, data = task
             try:
                 for p in self.manager.format_players.values():
                     if p is not player:
                         p.stop()
-                
+
                 player.stop()
                 player.feed(data)
             except Exception as error:
@@ -65,16 +65,16 @@ class AudioCache:
             self._params = (wf.getnchannels(), wf.getsampwidth(), wf.getframerate())
             raw_data = wf.readframes(wf.getnframes())
             sampwidth = wf.getsampwidth()
-            
+
             if sampwidth == 2:
                 samples = array.array('h', raw_data)
                 vol = max(0, min(100, volume))
                 factor = vol / 100.0
-                
+
                 for i in range(len(samples)):
                     val = int(samples[i] * factor)
                     samples[i] = max(-32768, min(32767, val))
-                    
+
                 self._data = samples.tobytes()
             else:
                 self._data = raw_data
@@ -110,9 +110,9 @@ class MultiPlayerManager:
 
     def _get_player_for_format(self, params: tuple[int, int, int]) -> Optional[nvwave.WavePlayer]:
         current_device = get_output_device()
-        
-        
-        
+
+
+
         if self._last_device != current_device:
             self.clear_players()
             self._last_device = current_device
