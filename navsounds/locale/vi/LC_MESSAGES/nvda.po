@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-05-06 14:56+0700\n"
-"PO-Revision-Date: 2026-06-29 16:47+0700\n"
+"POT-Creation-Date: 2026-07-24 05:00+0300\n"
+"PO-Revision-Date: 2026-07-24 10:11+0700\n"
 "Last-Translator: nguyenninhhoang <nguyenninhhoang2005@gmail.com>\n"
 "Language-Team: \n"
 "Language: vi\n"
@@ -44,42 +44,50 @@ msgstr ""
 "Nhấn một lần để chuyển đổi giữa bật và tắt âm thanh của đối tượng và Nhấn "
 "hai lần để chuyển đổi giữa bật và tắt âm thanh gõ."
 
-#: navsounds/globalPlugins/NavigationSounds/__init__.py
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "select sound"
 msgstr "chọn âm thanh"
 
-#: navsounds/globalPlugins/NavigationSounds/__init__.py
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "say element roles"
 msgstr "nói vai trò của phần tử"
 
-#: navsounds/globalPlugins/NavigationSounds/__init__.py
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "say element states"
 msgstr "nói trạng thái phần tử"
 
-#: navsounds/globalPlugins/NavigationSounds/__init__.py
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "play sounds on mouse hover"
+msgstr "phát âm thanh khi di chuột"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "mouse hover delay (ms)"
+msgstr "độ trễ khi di chuột (ms)"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "keyboard typing sound"
 msgstr "âm thanh gõ bàn phím"
 
-#: navsounds/globalPlugins/NavigationSounds/__init__.py
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "enable typing sound in text boxes only"
 msgstr "chỉ bật âm thanh gõ trong hộp văn bản"
 
-#: navsounds/globalPlugins/NavigationSounds/__init__.py
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "select typing sound"
 msgstr "chọn âm thanh gõ"
 
-#: navsounds/globalPlugins/NavigationSounds/__init__.py
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "play navigation sounds during arrow key navigation"
 msgstr "phát âm thanh điều hướng trong khi điều hướng bằng phím mũi tên"
 
-#: navsounds/globalPlugins/NavigationSounds/__init__.py
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "volume"
 msgstr "âm lượng"
 
-#: navsounds/globalPlugins/NavigationSounds/__init__.py
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "open sounds folder"
 msgstr "mở thư mục âm thanh"
 
-#: navsounds/globalPlugins/NavigationSounds/__init__.py
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "donate"
 msgstr "quyên góp"
