@@ -3,8 +3,12 @@ __pycache__/
 *.pyo
 *.nvda-addon
 *.zip
+*.pot
 desktop.ini
 Thumbs.db
 .DS_Store
 *.log
 *.mo
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
