@@ -17,7 +17,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-      - name: Install dependencies
+      - name: Install lint dependencies
         run: uv sync --only-group lint
       - name: Run ruff lint
         run: uv run ruff check navsounds/ tests/
@@ -29,14 +29,14 @@ jobs:
     needs: lint
     steps:
       - uses: actions/checkout@v7
-      - name: Set up Python
-        uses: actions/setup-python@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: '3.11'
-      - name: Install pytest
-        run: pip install pytest
+          enable-cache: true
+      - name: Install test dependencies
+        run: uv sync --only-group test
       - name: Run tests
-        run: python -m pytest tests/ -v
+        run: uv run pytest tests/ -v
 
   build:
     runs-on: ubuntu-latest
@@ -46,7 +46,7 @@ jobs:
       - name: Package addon
         run: |
           cd navsounds
-          zip -r ../navSounds-${{ github.ref_name }}.nvda-addon ./*
+          zip -r ../navSounds-${{ github.ref_name }}.nvda-addon ./* -x '*.pyc' '*__pycache__*' '*.pytest_cache*' '.git*'
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
@@ -62,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Download build artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v7
         with:
           name: navSounds-addon
       - name: Create Release
