@@ -45,10 +45,71 @@ class BrowseModeQuickNavInterceptor:
 		self._patched_script_ref: Optional[Any] = None
 		self._patched_caret_ref: Optional[Any] = None
 
-	def patch(self) -> None:
-		if self._patched_script_ref is not None:
+	def patch_caret_movement(self) -> None:
+		if self._patched_caret_ref is not None:
+			return
+		if cursorManager is None:
 			return
 
+		self.orig_caret_movement = getattr(cursorManager.CursorManager, "_caretMovementScriptHelper", None)
+
+		def patched_caret_movement(instance: Any, gesture: Any, unit: Any, *args: Any, **kwargs: Any) -> None:
+			if self.orig_caret_movement is None:
+				return
+
+			try:
+				old_info = instance.makeTextInfo(textInfos.POSITION_CARET) if textInfos is not None else None
+			except Exception:
+				old_info = None
+
+			self.orig_caret_movement(instance, gesture, unit, *args, **kwargs)
+
+			if not self.plugin.cfg_sounds:
+				return
+
+			if not self.plugin.role_section.get("arrowNavSounds", True):
+				return
+
+			try:
+				new_info = instance.makeTextInfo(textInfos.POSITION_CARET) if textInfos is not None else None
+			except Exception:
+				return
+
+			if old_info and new_info and old_info.compareEndPoints(new_info, "startToStart") == 0:
+				return
+
+			obj = self._get_object_at_caret(instance)
+			if obj is None:
+				return
+
+			self.plugin._browse_mode_move_fired = True
+			played = False
+			states = getattr(obj, "states", None)
+			if states and State is not None:
+				for state in states:
+					try:
+						name = State(state).name.replace("_", "").lower()
+					except (ValueError, AttributeError):
+						continue
+					if self.plugin._check_and_play_nav(name):
+						played = True
+						break
+
+			if not played and Role is not None:
+				role = getattr(obj, "role", None)
+				if role is not None:
+					try:
+						name = Role(role).name.replace("_", "").lower()
+						self.plugin._check_and_play_nav(name)
+					except (ValueError, AttributeError):
+						pass
+
+		self._patched_caret_ref = patched_caret_movement
+		setattr(cursorManager.CursorManager, "_caretMovementScriptHelper", patched_caret_movement)
+
+	def patch_quick_nav(self) -> None:
+		if self._patched_script_ref is not None:
+			return
 		if BrowseModeTreeInterceptor is None:
 			return
 
@@ -107,62 +168,9 @@ class BrowseModeQuickNavInterceptor:
 		self._patched_script_ref = patched_quick_nav_script
 		setattr(BrowseModeTreeInterceptor, "_quickNavScript", patched_quick_nav_script)
 
-		if cursorManager is not None:
-			self.orig_caret_movement = getattr(cursorManager.CursorManager, "_caretMovementScriptHelper", None)
-
-			def patched_caret_movement(instance: Any, gesture: Any, unit: Any, *args: Any, **kwargs: Any) -> None:
-				if self.orig_caret_movement is None:
-					return
-
-				try:
-					old_info = instance.makeTextInfo(textInfos.POSITION_CARET) if textInfos is not None else None
-				except Exception:
-					old_info = None
-
-				self.orig_caret_movement(instance, gesture, unit, *args, **kwargs)
-
-				if not self.plugin.cfg_sounds:
-					return
-
-				if not self.plugin.role_section.get("arrowNavSounds", True):
-					return
-
-				try:
-					new_info = instance.makeTextInfo(textInfos.POSITION_CARET) if textInfos is not None else None
-				except Exception:
-					return
-
-				if old_info and new_info and old_info.compareEndPoints(new_info, "startToStart") == 0:
-					return
-
-				obj = self._get_object_at_caret(instance)
-				if obj is None:
-					return
-
-				self.plugin._browse_mode_move_fired = True
-				played = False
-				states = getattr(obj, "states", None)
-				if states and State is not None:
-					for state in states:
-						try:
-							name = State(state).name.replace("_", "").lower()
-						except (ValueError, AttributeError):
-							continue
-						if self.plugin._check_and_play_nav(name):
-							played = True
-							break
-
-				if not played and Role is not None:
-					role = getattr(obj, "role", None)
-					if role is not None:
-						try:
-							name = Role(role).name.replace("_", "").lower()
-							self.plugin._check_and_play_nav(name)
-						except (ValueError, AttributeError):
-							pass
-
-			self._patched_caret_ref = patched_caret_movement
-			setattr(cursorManager.CursorManager, "_caretMovementScriptHelper", patched_caret_movement)
+	def patch(self) -> None:
+		self.patch_quick_nav()
+		self.patch_caret_movement()
 
 	def _get_object_at_caret(self, instance: Any) -> Any:
 		if hasattr(instance, "currentNVDAObject"):
@@ -201,6 +209,13 @@ class BrowseModeMoveListener:
 		self._fallback_interceptor: Optional[BrowseModeQuickNavInterceptor] = None
 
 	def start(self) -> None:
+		if self._fallback_interceptor is None:
+			self._fallback_interceptor = BrowseModeQuickNavInterceptor(self.plugin)
+		try:
+			self._fallback_interceptor.patch_caret_movement()
+		except Exception:
+			pass
+
 		extension_point = self._get_extension_point()
 		if extension_point is not None:
 			if self._registered and self._extension_point is extension_point:
@@ -215,10 +230,8 @@ class BrowseModeMoveListener:
 			except Exception:
 				self._log_exception_once("register", "Failed to register browse-mode move listener")
 
-		if self._fallback_interceptor is None:
-			self._fallback_interceptor = BrowseModeQuickNavInterceptor(self.plugin)
 		try:
-			self._fallback_interceptor.patch()
+			self._fallback_interceptor.patch_quick_nav()
 		except Exception:
 			pass
 
@@ -251,6 +264,10 @@ class BrowseModeMoveListener:
 		if not getattr(self.plugin, "cfg_sounds", False):
 			return
 
+		if getattr(self.plugin, "_browse_mode_move_fired", False):
+			self.plugin._browse_mode_move_fired = False
+			return
+
 		cursor_manager = kwargs.get("obj")
 		if cursor_manager is None and args:
 			cursor_manager = args[0]
@@ -259,7 +276,6 @@ class BrowseModeMoveListener:
 			nav_obj = self._get_object_at_caret(cursor_manager)
 			if nav_obj is None:
 				return
-			self.plugin._browse_mode_move_fired = True
 			self.plugin._play_nav_for_object(nav_obj)
 		except Exception:
 			self._log_exception_once("dispatch", "Browse-mode navigation sound dispatch failed")

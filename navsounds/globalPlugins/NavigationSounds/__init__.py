@@ -67,10 +67,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		try:
 			self._speech_module, self._speech_attr, self.old_getPropertiesSpeech = self._get_properties_speech_target()
 			setattr(self._speech_module, self._speech_attr, self.get_property2_speech)
+			# Also patch speech package level for external callers
+			self._old_speech_pkg_fn = None
+			if self._speech_module is not speech:
+				self._old_speech_pkg_fn = getattr(speech, "getPropertiesSpeech", None)
+				if self._old_speech_pkg_fn is not None:
+					speech.getPropertiesSpeech = self.get_property2_speech
 		except Exception:
 			self.old_getPropertiesSpeech = getattr(speech.speech, "getPropertiesSpeech", None)
 			if self.old_getPropertiesSpeech is not None:
 				speech.speech.getPropertiesSpeech = self.get_property2_speech
+			self._old_speech_pkg_fn = None
 
 		self.audio_manager = MultiPlayerManager(self.role_section["volume"])
 		self.cache_sounds()
@@ -164,14 +171,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	@staticmethod
 	def _get_properties_speech_target() -> tuple[Any, str, Callable[..., list[SpeechCommand | str]]]:
+		# Priority: speech.speech is where getPropertiesSpeech is defined
+		# and where getObjectPropertiesSpeech calls it from (same module).
+		# Patching speech.speech ensures the hook is reached by internal callers.
+		inner_module = getattr(speech, "speech", None)
+		get_properties_speech = getattr(inner_module, "getPropertiesSpeech", None)
+		if get_properties_speech is not None:
+			return inner_module, "getPropertiesSpeech", get_properties_speech
+
 		get_properties_speech = getattr(speech, "getPropertiesSpeech", None)
 		if get_properties_speech is not None:
 			return speech, "getPropertiesSpeech", get_properties_speech
-
-		legacy_speech_module = getattr(speech, "speech", None)
-		get_properties_speech = getattr(legacy_speech_module, "getPropertiesSpeech", None)
-		if get_properties_speech is not None:
-			return legacy_speech_module, "getPropertiesSpeech", get_properties_speech
 
 		raise AttributeError("speech.getPropertiesSpeech is not available")
 
@@ -340,6 +350,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		elif hasattr(self, "old_getPropertiesSpeech") and self.old_getPropertiesSpeech is not None:
 			try:
 				speech.speech.getPropertiesSpeech = self.old_getPropertiesSpeech
+			except Exception:
+				pass
+
+		if hasattr(self, "_old_speech_pkg_fn") and self._old_speech_pkg_fn is not None:
+			try:
+				speech.getPropertiesSpeech = self._old_speech_pkg_fn
 			except Exception:
 				pass
 
