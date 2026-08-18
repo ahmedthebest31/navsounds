@@ -8,6 +8,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -43,15 +47,24 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v7
-      - name: Package addon
+      - name: Read manifest and build addon
+        id: build
         run: |
+          name=$(python3 -c "import configparser; c=configparser.ConfigParser(); c.read('navsounds/manifest.ini'); print(c['DEFAULT']['name'])")
+          version=$(python3 -c "import configparser; c=configparser.ConfigParser(); c.read('navsounds/manifest.ini'); print(c['DEFAULT']['version'])")
+          addon_name="${name,,}_v${version}.nvda-addon"
+          echo "addon_name=${addon_name}" >> "$GITHUB_OUTPUT"
           cd navsounds
-          zip -r ../navSounds-${{ github.ref_name }}.nvda-addon ./* -x '*.pyc' '*__pycache__*' '*.pytest_cache*' '.git*'
+          zip -r "../${addon_name}" ./* -x '*.pyc' '*__pycache__*' '*.pytest_cache*' '.git*'
+          cd ..
+          sha256sum "${addon_name}" > "${addon_name}.sha256sum"
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
           name: navSounds-addon
-          path: ./*.nvda-addon
+          path: |
+            *.nvda-addon
+            *.sha256sum
 
   release:
     runs-on: ubuntu-latest
@@ -68,4 +81,6 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v3
         with:
-          files: ./*.nvda-addon
+          files: |
+            *.nvda-addon
+            *.sha256sum

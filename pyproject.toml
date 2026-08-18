@@ -105,6 +105,9 @@ reportUntypedClassDecorator = false
 reportUntypedFunctionDecorator = false
 
 [dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
 lint = [
     "ruff>=0.16.0",
 ]
