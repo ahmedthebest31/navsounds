@@ -54,7 +54,11 @@ def load_plugin_module(monkeypatch, speech_module=None):
 		SimpleNamespace(NVDASettingsDialog=SimpleNamespace(categoryClasses=[]), SettingsPanel=object),
 	)
 	monkeypatch.setitem(sys.modules, "inputCore", SimpleNamespace(InputGesture=object))
-	monkeypatch.setitem(sys.modules, "NVDAObjects", SimpleNamespace(NVDAObject=object, controlTypes=SimpleNamespace()))
+	monkeypatch.setitem(
+		sys.modules,
+		"NVDAObjects",
+		SimpleNamespace(NVDAObject=object, controlTypes=SimpleNamespace(OutputReason=SimpleNamespace(QUERY="query"))),
+	)
 	monkeypatch.setitem(
 		sys.modules,
 		"scriptHandler",
