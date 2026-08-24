@@ -210,10 +210,7 @@ class BrowseModeMoveListener:
 		self._ignored_roles = frozenset(
 			filter(
 				None,
-				(
-					getattr(Role, name, None)
-					for name in ("DOCUMENT", "WINDOW", "PANE", "APPLICATION", "UNKNOWN")
-				),
+				(getattr(Role, name, None) for name in ("DOCUMENT", "WINDOW", "PANE", "APPLICATION", "UNKNOWN")),
 			),
 		)
 

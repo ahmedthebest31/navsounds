@@ -50,6 +50,8 @@ def _reason_plays_nav_sounds(reason: Any) -> bool:
 	if name is None:
 		name = str(reason).rsplit(".", maxsplit=1)[-1]
 	return name.upper() in _SOUND_REASON_NAMES
+
+
 confspec = {
 	"sayRoles": "boolean(default=false)",
 	"sayStates": "boolean(default=true)",
@@ -375,10 +377,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				if isinstance(states, set):
 					kwargs.update({k: (states - to_remove if k == "states" else v) for k, v in kwargs.items()})
 				elif isinstance(states, list):
-					kwargs.update({
-						k: ([s for s in states if s not in to_remove] if k == "states" else v)
-						for k, v in kwargs.items()
-					})
+					kwargs.update(
+						{
+							k: ([s for s in states if s not in to_remove] if k == "states" else v)
+							for k, v in kwargs.items()
+						}
+					)
 
 	@script(gesture="kb:NVDA+alt+n")
 	def script_toggle(self, unused_gesture: inputCore.InputGesture) -> None:

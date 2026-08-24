@@ -163,11 +163,7 @@ class NavSettingsPanel(SettingsPanel):
 		if new_volume != old_volume:
 			self.main_plugin.audio_manager.update_volume(new_volume)
 
-		if (
-			new_volume != old_volume
-			or new_sound_type != old_sound_type
-			or new_typing_type != old_typing_type
-		):
+		if new_volume != old_volume or new_sound_type != old_sound_type or new_typing_type != old_typing_type:
 			self.main_plugin.reload_audio()
 
 	def ondonate(self, _: wx.Event) -> None:
