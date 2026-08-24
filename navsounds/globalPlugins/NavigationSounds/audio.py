@@ -118,7 +118,11 @@ class MultiPlayerManager:
 			channels, sampwidth, framerate = params
 			try:
 				player = nvwave.WavePlayer(
-					channels=channels, samplesPerSec=framerate, bitsPerSample=sampwidth * 8, outputDevice=current_device
+					channels=channels,
+					samplesPerSec=framerate,
+					bitsPerSample=sampwidth * 8,
+					outputDevice=current_device,
+					wantDucking=False,
 				)
 				self.format_players[params] = player
 
