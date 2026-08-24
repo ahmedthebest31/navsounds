@@ -53,12 +53,7 @@ jobs:
           # NVDA add-on manifests have no INI section header; inject one so
           # configparser can parse them.
           read_field() {
-            python3 -c "
-import configparser, sys
-c = configparser.ConfigParser()
-c.read_string('[DEFAULT]\n' + open(sys.argv[1], encoding='utf-8-sig').read())
-print(c['DEFAULT'][sys.argv[2]])
-" "$1" "$2"
+            python3 -c 'import configparser,sys; c=configparser.ConfigParser(); c.read_string("[DEFAULT]\n"+open(sys.argv[1],encoding="utf-8-sig").read()); print(c["DEFAULT"][sys.argv[2]])' "$1" "$2"
           }
           name=$(read_field navsounds/manifest.ini name)
           version=$(read_field navsounds/manifest.ini version)
