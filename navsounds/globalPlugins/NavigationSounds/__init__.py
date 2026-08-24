@@ -6,6 +6,7 @@ from typing import Any, Callable
 import wx
 
 import addonHandler
+import api
 import config
 from controlTypes import OutputReason, Role, State
 import globalPluginHandler
@@ -55,7 +56,7 @@ confspec = {
 	"soundType": "string(default=default)",
 	"cfgSounds": "boolean(default=true)",
 	"mouseSounds": "boolean(default=false)",
-	"mouseHoverDelay": "integer(default=270)",
+	"mouseHoverDelay": "integer(default=50)",
 	"typing": "boolean(default=true)",
 	"type": "string(default=1blueSwitch)",
 	"edit": "boolean(default=false)",
@@ -65,6 +66,32 @@ confspec = {
 
 if config.conf is not None:
 	config.conf.spec[ROLE_SECTION] = confspec
+
+
+# When several states of an element have matching sounds, pick the most
+# meaningful one deterministically instead of relying on set iteration order.
+_STATE_PRIORITY = (
+	"CHECKED",
+	"PRESSED",
+	"SELECTED",
+	"FOCUSED",
+	"HALFCHECKED",
+	"EXPANDED",
+	"COLLAPSED",
+	"HASPOPUP",
+	"READONLY",
+	"REQUIRED",
+	"PROTECTED",
+)
+
+
+def _state_sort_key(state: Any) -> tuple[int, str]:
+	try:
+		name = State(state).name
+	except ValueError:
+		name = str(state).upper()
+	order = _STATE_PRIORITY.index(name) if name in _STATE_PRIORITY else len(_STATE_PRIORITY)
+	return (order, name)
 
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
@@ -223,7 +250,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 		states = getattr(obj, "states", None)
 		if states:
-			for state in states:
+			for state in sorted(states, key=_state_sort_key):
 				try:
 					name = State(state).name.replace("_", "").lower()
 				except ValueError:
@@ -242,10 +269,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		return self._check_and_play_nav(name, obj)
 
 	def editable(self, obj: NVDAObjects.NVDAObject) -> bool:
+		# Values verified against official source/controlTypes/role.py:
+		# 8=EDITABLETEXT, 52=DOCUMENT, 82=TERMINAL.
 		controls = (
-			8,
-			52,
-			82,
+			Role.EDITABLETEXT,
+			Role.DOCUMENT,
+			Role.TERMINAL,
 		)
 		return (obj.role in controls or State.EDITABLE in obj.states) and State.READONLY not in obj.states
 
@@ -264,8 +293,21 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		nextHandler()
 
 	def _play_mouse_sound_delayed(self, obj: NVDAObjects.NVDAObject) -> None:
-		if obj == getattr(self, "_last_mouse_obj", None):
-			self._play_nav_for_object(obj)
+		self._mouse_timer = None
+		if obj is None:
+			return
+
+		try:
+			current = api.getMouseObject()
+		except Exception:
+			log.debugWarning("NavigationSounds: failed to read the current mouse object", exc_info=True)
+			return
+
+		if current is None or current != obj:
+			# The pointer moved on before the delay elapsed; stay silent.
+			return
+
+		self._play_nav_for_object(obj)
 
 	def event_mouseMove(self, obj: NVDAObjects.NVDAObject, nextHandler: Callable[[], None], x: int, y: int) -> None:
 		if self.role_section.get("mouseSounds", False):
@@ -273,7 +315,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 			if getattr(obj, "role", None) not in ignored_roles and obj != getattr(self, "_last_mouse_obj", None):
 				now = time.monotonic()
-				delay_ms = self.role_section.get("mouseHoverDelay", 270)
+				delay_ms = self.role_section.get("mouseHoverDelay", 50)
 				delay_sec = delay_ms / 1000.0
 
 				if now - getattr(self, "_last_mouse_time", 0.0) < delay_sec:

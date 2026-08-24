@@ -40,6 +40,7 @@ def load_plugin_module(monkeypatch, speech_module=None):
 
 	monkeypatch.setattr(builtins, "_", lambda value: value, raising=False)
 	monkeypatch.setitem(sys.modules, "addonHandler", SimpleNamespace(initTranslation=lambda: None))
+	monkeypatch.setitem(sys.modules, "api", SimpleNamespace(getMouseObject=lambda: None))
 	monkeypatch.setitem(sys.modules, "config", SimpleNamespace(conf=FakeConfig()))
 	monkeypatch.setitem(
 		sys.modules,

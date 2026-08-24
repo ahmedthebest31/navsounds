@@ -26,8 +26,8 @@ class NavSettingsPanel(SettingsPanel):
 		nav_sounds_dir = base_sounds_dir / "navsounds"
 		type_sounds_dir = base_sounds_dir / "typingsound"
 
-		nav_sounds = [p.name for p in nav_sounds_dir.iterdir() if p.is_dir()]
-		type_sounds = [p.name for p in type_sounds_dir.iterdir() if p.is_dir()]
+		nav_sounds = [p.name for p in nav_sounds_dir.iterdir() if p.is_dir()] if nav_sounds_dir.is_dir() else []
+		type_sounds = [p.name for p in type_sounds_dir.iterdir() if p.is_dir()] if type_sounds_dir.is_dir() else []
 
 		sizer_helper = guiHelper.BoxSizerHelper(self, sizer=sizer)
 
@@ -52,7 +52,7 @@ class NavSettingsPanel(SettingsPanel):
 		self.mouse_delay_label = wx.StaticText(self, label=_("mouse hover delay (ms)"), name="mdl")
 		sizer_helper.addItem(self.mouse_delay_label)
 		self.mouse_delay_ctrl = sizer_helper.addItem(wx.SpinCtrl(self, name="mdl", min=50, max=2000))
-		self.mouse_delay_ctrl.SetValue(self.main_plugin.role_section.get("mouseHoverDelay", 270))
+		self.mouse_delay_ctrl.SetValue(self.main_plugin.role_section.get("mouseHoverDelay", 50))
 
 		is_mouse_enabled = self.mouse_cb.GetValue()
 		self.mouse_delay_label.Enable(is_mouse_enabled)
@@ -124,7 +124,16 @@ class NavSettingsPanel(SettingsPanel):
 		if self.main_plugin is None:
 			raise ValueError("The plugin is not transferred to the settings panel")
 
-		self.main_plugin.role_section["soundType"] = self.sou.GetStringSelection()
+		# Capture previous values first so only real changes trigger a reload.
+		old_volume = self.main_plugin.role_section["volume"]
+		old_sound_type = self.main_plugin.role_section["soundType"]
+		old_typing_type = self.main_plugin.role_section["type"]
+
+		new_volume = self.sou3.GetValue()
+		new_sound_type = self.sou.GetStringSelection()
+		new_typing_type = self.sou1.GetStringSelection()
+
+		self.main_plugin.role_section["soundType"] = new_sound_type
 
 		self.main_plugin.role_section["sayRoles"] = self.nar.GetValue()
 		self.main_plugin.say_roles = self.main_plugin.role_section["sayRoles"]
@@ -145,16 +154,23 @@ class NavSettingsPanel(SettingsPanel):
 		self.main_plugin.role_section["typing"] = self.ts.GetValue()
 		self.main_plugin.role_section["edit"] = self.edit.GetValue()
 
-		self.main_plugin.role_section["type"] = self.sou1.GetStringSelection()
+		self.main_plugin.role_section["type"] = new_typing_type
 
 		self.main_plugin.role_section["arrowNavSounds"] = self.arrow_nav_cb.GetValue()
 
-		self.main_plugin.role_section["volume"] = self.sou3.GetValue()
+		self.main_plugin.role_section["volume"] = new_volume
 
-		self.main_plugin.audio_manager.update_volume(self.main_plugin.role_section["volume"])
-		self.main_plugin.reload_audio()
+		if new_volume != old_volume:
+			self.main_plugin.audio_manager.update_volume(new_volume)
+
+		if (
+			new_volume != old_volume
+			or new_sound_type != old_sound_type
+			or new_typing_type != old_typing_type
+		):
+			self.main_plugin.reload_audio()
 
 	def ondonate(self, _: wx.Event) -> None:
-		ui.message("please wait")
+		ui.message(_("please wait"))
 		web.open("https://www.paypal.me/ahmedthebest31")
-		ui.message("donation link is opened")
+		ui.message(_("donation link is opened"))

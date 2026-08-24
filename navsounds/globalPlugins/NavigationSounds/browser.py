@@ -161,7 +161,7 @@ class BrowseModeQuickNavInterceptor:
 
 			if old_info and new_selection:
 				if old_info.compareEndPoints(new_selection, "startToStart") != 0:
-					self.plugin._check_and_play_nav(itemType)
+					self.plugin._check_and_play_nav(str(itemType).lower())
 
 		self._patched_script_ref = patched_quick_nav_script
 		setattr(BrowseModeTreeInterceptor, "_quickNavScript", patched_quick_nav_script)
