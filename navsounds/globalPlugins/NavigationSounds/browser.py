@@ -82,7 +82,6 @@ class BrowseModeQuickNavInterceptor:
 			if obj is None:
 				return
 
-			self.plugin._browse_mode_move_fired = True
 			played = False
 			states = getattr(obj, "states", None)
 			if states and State is not None:
@@ -91,7 +90,7 @@ class BrowseModeQuickNavInterceptor:
 						name = State(state).name.replace("_", "").lower()
 					except (ValueError, AttributeError):
 						continue
-					if self.plugin._check_and_play_nav(name):
+					if self.plugin._check_and_play_nav(name, obj):
 						played = True
 						break
 
@@ -100,7 +99,7 @@ class BrowseModeQuickNavInterceptor:
 				if role is not None:
 					try:
 						name = Role(role).name.replace("_", "").lower()
-						self.plugin._check_and_play_nav(name)
+						self.plugin._check_and_play_nav(name, obj)
 					except (ValueError, AttributeError):
 						pass
 
@@ -162,7 +161,6 @@ class BrowseModeQuickNavInterceptor:
 
 			if old_info and new_selection:
 				if old_info.compareEndPoints(new_selection, "startToStart") != 0:
-					self.plugin._browse_mode_move_fired = True
 					self.plugin._check_and_play_nav(itemType)
 
 		self._patched_script_ref = patched_quick_nav_script
@@ -207,14 +205,21 @@ class BrowseModeMoveListener:
 		self._registered = False
 		self._logged_errors: set[str] = set()
 		self._fallback_interceptor: Optional[BrowseModeQuickNavInterceptor] = None
+		# Container roles never get navigation sounds from the browse-mode path.
+		# Guarded with getattr so partial/foreign Role implementations stay safe.
+		self._ignored_roles = frozenset(
+			filter(
+				None,
+				(
+					getattr(Role, name, None)
+					for name in ("DOCUMENT", "WINDOW", "PANE", "APPLICATION", "UNKNOWN")
+				),
+			),
+		)
 
 	def start(self) -> None:
 		if self._fallback_interceptor is None:
 			self._fallback_interceptor = BrowseModeQuickNavInterceptor(self.plugin)
-		try:
-			self._fallback_interceptor.patch_caret_movement()
-		except Exception:
-			pass
 
 		extension_point = self._get_extension_point()
 		if extension_point is not None:
@@ -224,11 +229,19 @@ class BrowseModeMoveListener:
 				self.stop()
 			try:
 				extension_point.register(self._on_browse_mode_move)
+				# The official extension point is the single dispatch path when
+				# available; monkey-patches stay dormant (mutual exclusion).
 				self._extension_point = extension_point
 				self._registered = True
 				return
 			except Exception:
 				self._log_exception_once("register", "Failed to register browse-mode move listener")
+
+		# Fallback only: no usable post_browseModeMove on this NVDA build.
+		try:
+			self._fallback_interceptor.patch_caret_movement()
+		except Exception:
+			pass
 
 		try:
 			self._fallback_interceptor.patch_quick_nav()
@@ -264,17 +277,29 @@ class BrowseModeMoveListener:
 		if not getattr(self.plugin, "cfg_sounds", False):
 			return
 
-		if getattr(self.plugin, "_browse_mode_move_fired", False):
-			self.plugin._browse_mode_move_fired = False
-			return
-
 		cursor_manager = kwargs.get("obj")
 		if cursor_manager is None and args:
 			cursor_manager = args[0]
+		if cursor_manager is None:
+			return
+
+		# Only browse-mode documents play navigation sounds here. Plain editable
+		# text fields also use a CursorManager; their caret moves are already
+		# covered by event_gainFocus.
+		if BrowseModeTreeInterceptor is not None and not isinstance(cursor_manager, BrowseModeTreeInterceptor):
+			return
+
+		# Skip selection extensions (shift+arrows): sounds follow caret moves only.
+		try:
+			sel_info = cursor_manager.makeTextInfo(textInfos.POSITION_SELECTION) if textInfos is not None else None
+		except Exception:
+			sel_info = None
+		if sel_info is not None and not getattr(sel_info, "isCollapsed", True):
+			return
 
 		try:
 			nav_obj = self._get_object_at_caret(cursor_manager)
-			if nav_obj is None:
+			if nav_obj is None or getattr(nav_obj, "role", None) in self._ignored_roles:
 				return
 			self.plugin._play_nav_for_object(nav_obj)
 		except Exception:

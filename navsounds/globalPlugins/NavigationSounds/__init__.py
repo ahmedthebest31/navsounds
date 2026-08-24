@@ -65,7 +65,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._last_mouse_time = 0.0
 		self._last_mouse_obj = None
 		self._mouse_timer = None
-		self._browse_mode_move_fired = False
 
 		NavSettingsPanel.main_plugin = self
 		if NavSettingsPanel not in NVDASettingsDialog.categoryClasses:
@@ -242,10 +241,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		nextHandler()
 
 	def event_gainFocus(self, obj: NVDAObjects.NVDAObject, nextHandler: Callable[[], None]) -> None:
-		if self.cfg_sounds and self._browse_mode_move_fired:
-			self._browse_mode_move_fired = False
-			nextHandler()
-			return
+		# Duplicate focus events for the same element are suppressed centrally
+		# inside play_nav (object identity + time window).
 		self._play_nav_for_object(obj)
 		nextHandler()
 
