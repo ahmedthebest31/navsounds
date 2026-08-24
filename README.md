@@ -14,9 +14,6 @@ Navigation Sounds is an NVDA screen reader add-on that provides audio feedback f
 - **Compatibility**: Tailored for modern NVDA versions, starting from 2019.3.
 - **Multilingual**: Supports English, Arabic, Italian, French, Spanish, Portuguese, Polish, Danish, Ukrainian, Vietnamese, and Chinese simplified.
 
- 
-To stay updated on the latest changes, please refer to [CHANGELOG.md](./CHANGELOG.md).
-
 ## Installation
 
 ### Direct Installation (NVDA Version 2023.2+)
@@ -34,7 +31,7 @@ For users on NVDA 2023.2 or newer:
 
 ## Contributing
 
-Contributions to this project are welcome! If you find a bug, have an idea for an improvement, or want to contribute in any other way, please feel free to open an issue or submit a pull request.
+Contributions are welcome! Whether you've found a bug, have an improvement idea, or want to contribute in any other way, check out our [Contributing Guide](./CONTRIBUTING.md) for details on how to get started.
 
 ## License
 
