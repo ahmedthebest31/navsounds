@@ -162,3 +162,81 @@ def test_start_is_noop_when_vision_extension_point_is_missing(monkeypatch):
 	listener.start()
 
 	assert listener._registered is False
+
+
+class _PositionalInfo:
+	def __init__(self, obj, collapsed):
+		self.NVDAObjectAtStart = obj
+		self.focusableNVDAObjectAtStart = None
+		self.isCollapsed = collapsed
+
+
+def test_selection_extension_does_not_play_sound(monkeypatch):
+	browser = load_browser_module(monkeypatch)
+	action = FakeAction()
+	fake_vision = SimpleNamespace(
+		handler=SimpleNamespace(extensionPoints=SimpleNamespace(post_browseModeMove=action)),
+	)
+	monkeypatch.setattr(browser, "vision", fake_vision)
+	monkeypatch.setattr(browser.textInfos, "POSITION_SELECTION", "sel", raising=False)
+
+	caret_obj = SimpleNamespace(role="link")
+	cursor_manager = SimpleNamespace(
+		makeTextInfo=lambda position: _PositionalInfo(caret_obj, collapsed=(position != "sel")),
+	)
+	played = []
+
+	listener = browser.BrowseModeMoveListener(SimpleNamespace(cfg_sounds=True, _play_nav_for_object=played.append))
+	listener.start()
+	action.notify(cursor_manager)
+
+	assert played == []
+
+
+def test_collapsed_caret_move_plays_sound(monkeypatch):
+	browser = load_browser_module(monkeypatch)
+	action = FakeAction()
+	fake_vision = SimpleNamespace(
+		handler=SimpleNamespace(extensionPoints=SimpleNamespace(post_browseModeMove=action)),
+	)
+	monkeypatch.setattr(browser, "vision", fake_vision)
+	monkeypatch.setattr(browser.textInfos, "POSITION_SELECTION", "sel", raising=False)
+
+	caret_obj = SimpleNamespace(role="link")
+	cursor_manager = SimpleNamespace(
+		makeTextInfo=lambda position: _PositionalInfo(caret_obj, collapsed=True),
+	)
+	played = []
+
+	listener = browser.BrowseModeMoveListener(SimpleNamespace(cfg_sounds=True, _play_nav_for_object=played.append))
+	listener.start()
+	action.notify(cursor_manager)
+
+	assert played == [caret_obj]
+
+
+def test_arrow_nav_setting_gates_extension_point_dispatch(monkeypatch):
+	browser = load_browser_module(monkeypatch)
+	action = FakeAction()
+	fake_vision = SimpleNamespace(
+		handler=SimpleNamespace(extensionPoints=SimpleNamespace(post_browseModeMove=action)),
+	)
+	monkeypatch.setattr(browser, "vision", fake_vision)
+
+	caret_obj = SimpleNamespace(role="link")
+	cursor_manager = SimpleNamespace(makeTextInfo=lambda position: _PositionalInfo(caret_obj, collapsed=True))
+	played = []
+
+	plugin = SimpleNamespace(
+		cfg_sounds=True,
+		role_section={"arrowNavSounds": False},
+		_play_nav_for_object=played.append,
+	)
+	listener = browser.BrowseModeMoveListener(plugin)
+	listener.start()
+	action.notify(cursor_manager)
+	assert played == []
+
+	plugin.role_section["arrowNavSounds"] = True
+	action.notify(cursor_manager)
+	assert played == [caret_obj]

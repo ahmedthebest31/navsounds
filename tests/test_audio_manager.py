@@ -1,5 +1,6 @@
 import importlib.util
 import sys
+import time
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -47,3 +48,32 @@ def test_navigation_sound_player_does_not_request_audio_ducking(monkeypatch):
 	assert player is not None
 	assert len(FakeWavePlayer.created_with) == 1
 	assert FakeWavePlayer.created_with[0]["wantDucking"] is False
+
+
+def test_sound_worker_stop_exits_thread_and_ignores_late_work(monkeypatch):
+	audio = load_audio_module(monkeypatch)
+	manager = audio.MultiPlayerManager(50)
+	worker = manager.worker
+	assert worker.is_alive()
+
+	worker.play(FakeWavePlayer(), b"\x00\x00")
+	worker.stop(timeout=5.0)
+
+	assert not worker.is_alive()
+	worker.stop(timeout=5.0)
+
+	worker.play(FakeWavePlayer(), b"\x00\x00")
+
+	assert not worker.is_alive()
+
+
+def test_manager_terminate_stops_worker_and_loader_cleanly(monkeypatch):
+	audio = load_audio_module(monkeypatch)
+	manager = audio.MultiPlayerManager(50)
+	manager.load_sounds([], on_done=None)
+
+	manager.terminate()
+
+	time.sleep(0.1)
+	assert not manager.worker.is_alive()
+	assert manager._loader is None or not manager._loader.is_alive()

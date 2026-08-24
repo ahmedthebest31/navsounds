@@ -246,3 +246,67 @@ def test_roles_and_states_kept_for_query_reason(monkeypatch):
 
 	assert "role" in result
 	assert "states" in result
+
+
+def _make_play_nav_host(plugin_module, cfg_sounds=True):
+	played = []
+
+	class Host:
+		pass
+
+	host = Host()
+	host.cfg_sounds = cfg_sounds
+	host.audio_manager = SimpleNamespace(play=played.append)
+	Host.play_nav = plugin_module.GlobalPlugin.play_nav
+	return host, played
+
+
+def test_play_nav_suppresses_same_object_within_window(monkeypatch):
+	plugin_module = load_plugin_module(monkeypatch)
+	clock = {"now": 1000.0}
+	monkeypatch.setattr(plugin_module.time, "monotonic", lambda: clock["now"])
+
+	host, played = _make_play_nav_host(plugin_module)
+	first = SimpleNamespace(role="button")
+	second = SimpleNamespace(role="button")
+
+	host.play_nav("nav_button", first)
+	clock["now"] += 0.05
+	host.play_nav("nav_button", first)
+	clock["now"] += 0.15
+	host.play_nav("nav_button", second)
+	clock["now"] += 0.10
+	host.play_nav("nav_button", second)
+	clock["now"] += 0.40
+	host.play_nav("nav_button", second)
+
+	assert played == ["nav_button", "nav_button", "nav_button"]
+
+
+def test_play_nav_without_object_keeps_short_throttle(monkeypatch):
+	plugin_module = load_plugin_module(monkeypatch)
+	clock = {"now": 2000.0}
+	monkeypatch.setattr(plugin_module.time, "monotonic", lambda: clock["now"])
+
+	host, played = _make_play_nav_host(plugin_module)
+
+	host.play_nav("nav_link")
+	clock["now"] += 0.02
+	host.play_nav("nav_link")
+	clock["now"] += 0.30
+	host.play_nav("nav_link")
+
+	assert played == ["nav_link", "nav_link"]
+
+
+def test_play_nav_respects_master_switch(monkeypatch):
+	plugin_module = load_plugin_module(monkeypatch)
+	clock = {"now": 3000.0}
+	monkeypatch.setattr(plugin_module.time, "monotonic", lambda: clock["now"])
+
+	host, played = _make_play_nav_host(plugin_module, cfg_sounds=False)
+
+	host.play_nav("nav_heading", SimpleNamespace(role="heading"))
+	host.play_nav("nav_heading")
+
+	assert played == []
