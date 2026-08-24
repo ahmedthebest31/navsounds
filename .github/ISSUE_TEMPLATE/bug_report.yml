@@ -1,0 +1,38 @@
+name: Bug report
+description: Report something broken in navSounds
+labels: [bug]
+body:
+  - type: input
+    id: nvda_version
+    attributes:
+      label: NVDA version
+      placeholder: "e.g. 2025.1"
+    validations:
+      required: true
+  - type: input
+    id: windows_version
+    attributes:
+      label: Windows version
+      placeholder: "e.g. Windows 11 24H2"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact steps, starting from NVDA running with navSounds installed.
+    validations:
+      required: true
+  - type: checkboxes
+    id: disabled_check
+    attributes:
+      label: Does the problem disappear when navSounds is disabled?
+      options:
+        - label: "Yes"
+        - label: "No"
+        - label: Not tested yet
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Sound pack in use, error tones, log excerpts.

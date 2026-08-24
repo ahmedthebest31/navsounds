@@ -84,7 +84,8 @@ jobs:
         with:
           name: navSounds-addon
       - name: Create Release
-        uses: softprops/action-gh-release@v3
+        # softprops/action-gh-release v3, pinned by commit SHA.
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228
         with:
           files: |
             *.nvda-addon

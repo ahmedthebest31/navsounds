@@ -1,0 +1,25 @@
+name: Feature request
+description: Suggest a new sound, behavior, or integration
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would this improve?
+      description: Describe the situation or limitation you are facing.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: checkboxes
+    id: assets
+    attributes:
+      label: Can you contribute audio assets for it?
+      description: New sounds for roles or states need WAV files; code-side support is usually straightforward.
+      options:
+        - label: "Yes, I can provide WAV files"
+        - label: "No, I am only suggesting the idea"
