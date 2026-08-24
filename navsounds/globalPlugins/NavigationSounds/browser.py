@@ -277,6 +277,13 @@ class BrowseModeMoveListener:
 		if not getattr(self.plugin, "cfg_sounds", False):
 			return
 
+		# The extension point cannot distinguish arrows from quick nav; this
+		# setting therefore gates every browse-mode move sound. Without it the
+		# checkbox would stay dead on modern NVDA, where only this path runs.
+		role_section = getattr(self.plugin, "role_section", None)
+		if role_section is not None and not role_section.get("arrowNavSounds", True):
+			return
+
 		cursor_manager = kwargs.get("obj")
 		if cursor_manager is None and args:
 			cursor_manager = args[0]

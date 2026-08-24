@@ -11,6 +11,7 @@ from controlTypes import OutputReason, Role, State
 import globalPluginHandler
 from gui.settingsDialogs import NVDASettingsDialog
 import inputCore
+from logHandler import log
 import NVDAObjects
 from scriptHandler import script, getLastScriptRepeatCount
 import speech
@@ -32,6 +33,22 @@ ROLE_SECTION = "NavigationSounds"
 NAV_DUPLICATE_WINDOW_SECONDS = 0.25
 # Fallback throttle when no object identity is available for dedup.
 NAV_NO_OBJECT_THROTTLE_SECONDS = 0.06
+# Announcement filtering only applies to the reasons that actually play
+# navigation sounds. Verified against official NVDA source
+# (source/controlTypes/outputReason.py): FOCUS covers focus changes,
+# CARET covers caret movement (including browse-mode arrows) and QUICKNAV
+# covers quick-navigation announcements. Matched by member NAME so the gate
+# survives enum identity differences or plain-string reasons across NVDA
+# versions. Every other reason (QUERY, SAYALL, MOUSE, ...) keeps announcing
+# roles/states so context is never lost.
+_SOUND_REASON_NAMES = frozenset({"FOCUS", "CARET", "QUICKNAV"})
+
+
+def _reason_plays_nav_sounds(reason: Any) -> bool:
+	name = getattr(reason, "name", None)
+	if name is None:
+		name = str(reason).rsplit(".", maxsplit=1)[-1]
+	return name.upper() in _SOUND_REASON_NAMES
 confspec = {
 	"sayRoles": "boolean(default=false)",
 	"sayStates": "boolean(default=true)",
@@ -279,41 +296,47 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		reason: NVDAObjects.controlTypes.OutputReason = OutputReason.QUERY,
 		**kwargs: Any,
 	) -> list[SpeechCommand | str]:
-		try:
-			role = kwargs.get("role", None)
-			states = kwargs.get("states", None)
-
-			if role is not None and not self.say_roles:
-				try:
-					if "nav_" + Role(role).name.replace("_", "").lower() in self.nav_sounds:
-						if "role" in kwargs:
-							del kwargs["role"]
-				except ValueError:
-					pass
-
-			if states and not self.say_states:
-				to_remove = set()
-				for state in states:
-					try:
-						if "nav_" + State(state).name.replace("_", "").lower() in self.nav_sounds:
-							to_remove.add(state)
-					except ValueError:
-						continue
-
-				if to_remove:
-					if isinstance(states, set):
-						kwargs = {k: (states - to_remove if k == "states" else v) for k, v in kwargs.items()}
-					elif isinstance(states, list):
-						kwargs = {
-							k: ([s for s in states if s not in to_remove] if k == "states" else v)
-							for k, v in kwargs.items()
-						}
-		except Exception:
-			pass
+		# Roles/states are only silenced for the reasons that play sounds;
+		# all other reasons keep announcing them so context is never lost.
+		if _reason_plays_nav_sounds(reason):
+			try:
+				self._filter_announced_properties(kwargs)
+			except Exception:
+				log.debugWarning("NavigationSounds: property speech filtering failed", exc_info=True)
 
 		if hasattr(self, "old_getPropertiesSpeech") and self.old_getPropertiesSpeech is not None:
 			return self.old_getPropertiesSpeech(reason, **kwargs)
 		return []
+
+	def _filter_announced_properties(self, kwargs: dict[str, Any]) -> None:
+		role = kwargs.get("role", None)
+		states = kwargs.get("states", None)
+
+		if role is not None and not self.say_roles:
+			try:
+				if "nav_" + Role(role).name.replace("_", "").lower() in self.nav_sounds:
+					if "role" in kwargs:
+						del kwargs["role"]
+			except ValueError:
+				pass
+
+		if states and not self.say_states:
+			to_remove = set()
+			for state in states:
+				try:
+					if "nav_" + State(state).name.replace("_", "").lower() in self.nav_sounds:
+						to_remove.add(state)
+				except ValueError:
+					continue
+
+			if to_remove:
+				if isinstance(states, set):
+					kwargs.update({k: (states - to_remove if k == "states" else v) for k, v in kwargs.items()})
+				elif isinstance(states, list):
+					kwargs.update({
+						k: ([s for s in states if s not in to_remove] if k == "states" else v)
+						for k, v in kwargs.items()
+					})
 
 	@script(gesture="kb:NVDA+alt+n")
 	def script_toggle(self, unused_gesture: inputCore.InputGesture) -> None:
@@ -324,16 +347,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			self.cfg_sounds = not self.cfg_sounds
 			if self.cfg_sounds is False:
 				ui.message(_("Disable navigation sounds"))
-				try:
-					self.browser_interceptor.terminate()
-				except Exception:
-					pass
+				# Listener start/stop already swallow and log their own errors.
+				self.browser_interceptor.terminate()
 			else:
 				ui.message(_("Enable navigation sounds"))
-				try:
-					self.browser_interceptor.patch()
-				except Exception:
-					pass
+				self.browser_interceptor.patch()
 
 		elif is_same_script == 1:
 			cfg_typing = not cfg_typing
@@ -359,18 +377,18 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			try:
 				setattr(self._speech_module, self._speech_attr, self.old_getPropertiesSpeech)
 			except Exception:
-				pass
+				log.debugWarning("Failed to restore patched getPropertiesSpeech", exc_info=True)
 		elif hasattr(self, "old_getPropertiesSpeech") and self.old_getPropertiesSpeech is not None:
 			try:
 				speech.speech.getPropertiesSpeech = self.old_getPropertiesSpeech
 			except Exception:
-				pass
+				log.debugWarning("Failed to restore legacy getPropertiesSpeech", exc_info=True)
 
 		if hasattr(self, "_old_speech_pkg_fn") and self._old_speech_pkg_fn is not None:
 			try:
 				speech.getPropertiesSpeech = self._old_speech_pkg_fn
 			except Exception:
-				pass
+				log.debugWarning("Failed to restore package-level getPropertiesSpeech", exc_info=True)
 
 		try:
 			self.browser_interceptor.terminate()

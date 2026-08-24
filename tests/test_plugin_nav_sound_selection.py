@@ -71,7 +71,16 @@ def load_plugin_module(monkeypatch, speech_module=None):
 	monkeypatch.setitem(sys.modules, "ui", SimpleNamespace(message=lambda message: None))
 	monkeypatch.setitem(sys.modules, "wx", SimpleNamespace(Sizer=object, Event=object, SL_HORIZONTAL=0))
 	monkeypatch.setitem(
-		sys.modules, "logHandler", SimpleNamespace(log=SimpleNamespace(error=lambda *args, **kwargs: None))
+		sys.modules,
+		"logHandler",
+		SimpleNamespace(
+			log=SimpleNamespace(
+				error=lambda *args, **kwargs: None,
+				warning=lambda *args, **kwargs: None,
+				debug=lambda *args, **kwargs: None,
+				debugWarning=lambda *args, **kwargs: None,
+			)
+		),
 	)
 	monkeypatch.setitem(sys.modules, "nvwave", SimpleNamespace(WavePlayer=object))
 	monkeypatch.setitem(sys.modules, "browseMode", SimpleNamespace(BrowseModeTreeInterceptor=object))
@@ -171,3 +180,68 @@ def test_get_properties_speech_target_supports_legacy_nested_module(monkeypatch)
 	assert owner is legacy_inner
 	assert attr == "getPropertiesSpeech"
 	assert original("query") == ["legacy"]
+
+
+class _Reason:
+	def __init__(self, name):
+		self.name = name
+
+
+def test_reason_gate_matches_sound_reasons_by_name(monkeypatch):
+	plugin_module = load_plugin_module(monkeypatch)
+
+	gate = plugin_module._reason_plays_nav_sounds
+
+	assert gate(_Reason("FOCUS"))
+	assert gate(_Reason("CARET"))
+	assert gate(_Reason("QUICKNAV"))
+	assert not gate(_Reason("QUERY"))
+	assert not gate(_Reason("SAYALL"))
+	assert gate("caret")
+	assert gate("controlTypes.OutputReason.FOCUS")
+	assert not gate(123)
+
+
+def _make_suppression_host(plugin_module):
+	"""Build a host object carrying the REAL speech methods under test."""
+
+	class Host:
+		say_roles = False
+		say_states = False
+		nav_sounds = {"nav_button", "nav_checked"}
+
+		def old_getPropertiesSpeech(self, reason, **kwargs):
+			return sorted(kwargs.keys()) + ["ORIG"]
+
+	Host.get_property2_speech = plugin_module.GlobalPlugin.get_property2_speech
+	Host._filter_announced_properties = plugin_module.GlobalPlugin._filter_announced_properties
+	return Host()
+
+
+def test_roles_and_states_suppressed_for_focus_reason(monkeypatch):
+	plugin_module = load_plugin_module(monkeypatch)
+	host = _make_suppression_host(plugin_module)
+
+	result = host.get_property2_speech(
+		reason=_Reason("FOCUS"),
+		role="button",
+		states=["checked"],
+	)
+
+	assert "role" not in result
+	assert "states" in result
+	assert "ORIG" in result
+
+
+def test_roles_and_states_kept_for_query_reason(monkeypatch):
+	plugin_module = load_plugin_module(monkeypatch)
+	host = _make_suppression_host(plugin_module)
+
+	result = host.get_property2_speech(
+		reason=_Reason("QUERY"),
+		role="button",
+		states=["checked"],
+	)
+
+	assert "role" in result
+	assert "states" in result
