@@ -21,13 +21,25 @@ def get_output_device() -> str:
 
 
 class SoundWorker(threading.Thread):
+	"""Plays queued sound effects serially, off the main thread.
+
+	The worker keeps only the most recent request so a burst of navigation
+	events never backlogs audio. Termination is race-free: the stop event is
+	checked after every dequeue, so the thread always exits even when a
+	pending task occupies the bounded queue.
+	"""
+
 	def __init__(self, manager):
 		super().__init__(daemon=True)
 		self.manager = manager
 		self.queue = queue.Queue(maxsize=1)
+		self._stop_event = threading.Event()
 		self.start()
 
 	def play(self, player: nvwave.WavePlayer, data: bytes) -> None:
+		if self._stop_event.is_set():
+			return
+
 		try:
 			self.queue.get_nowait()
 		except queue.Empty:
@@ -38,18 +50,27 @@ class SoundWorker(threading.Thread):
 		except queue.Full:
 			pass
 
+	def stop(self, timeout: float = 5.0) -> None:
+		if self._stop_event.is_set():
+			return
+		self._stop_event.set()
+		try:
+			self.queue.put_nowait(None)
+		except queue.Full:
+			# A pending task exists; the run loop will see the stop event
+			# right after processing it and exit anyway.
+			pass
+		if self.is_alive():
+			self.join(timeout)
+
 	def run(self) -> None:
 		while True:
 			task = self.queue.get()
-			if task is None:
+			if task is None or self._stop_event.is_set():
 				break
 
 			player, data = task
 			try:
-				for p in self.manager.format_players.values():
-					if p is not player:
-						p.stop()
-
 				player.stop()
 				player.feed(data)
 			except Exception as error:
@@ -104,7 +125,7 @@ class MultiPlayerManager:
 		if sound_file.exists():
 			try:
 				self.cache[name] = AudioCache(sound_file, self.volume)
-			except OSError as error:
+			except (OSError, wave.Error, EOFError) as error:
 				log.warning("Error reading file '%s': %s", str(sound_file), str(error))
 
 	def _get_player_for_format(self, params: tuple[int, int, int]) -> Optional[nvwave.WavePlayer]:
@@ -156,7 +177,4 @@ class MultiPlayerManager:
 
 	def terminate(self) -> None:
 		self.clear_all()
-		try:
-			self.worker.queue.put_nowait(None)
-		except queue.Full:
-			pass
+		self.worker.stop()
