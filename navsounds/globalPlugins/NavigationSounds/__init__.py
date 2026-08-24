@@ -86,6 +86,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			self._old_speech_pkg_fn = None
 
 		self.audio_manager = MultiPlayerManager(self.role_section["volume"])
+		# Sound sets exist (empty) immediately; the background loader fills them.
+		self._refresh_sound_sets()
 		self.cache_sounds()
 
 		self.browser_interceptor = BrowseModeMoveListener(self)
@@ -116,32 +118,30 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			raise ValueError("saved settings sound type for typing not found")
 		return Path(self.main_paths / "effects" / "typingsound" / typing_type)
 
-	def cache_sounds(self) -> None:
-		for sound_dir in (
-			self.loc_nav_sounds,
-			self.loc_type_sounds,
+	def _collect_sound_entries(self) -> list[tuple[str, Path]]:
+		entries: list[tuple[str, Path]] = []
+		for sound_dir, prefix in (
+			(self.loc_nav_sounds, "nav"),
+			(self.loc_type_sounds, "type"),
 		):
 			if not sound_dir.is_dir():
 				continue
+			for sound_file in sorted(sound_dir.glob("*.wav")):
+				entries.append((f"{prefix}_{sound_file.stem.lower()}", sound_file))
+		return entries
 
-			if sound_dir.parent.name == "navsounds":
-				prefix = "nav"
-			elif sound_dir.parent.name == "typingsound":
-				prefix = "type"
-			else:
-				raise ValueError("Sound type folder not found")
-
-			sound_files = list(sound_dir.glob("*.wav"))
-			for sound_file in sound_files:
-				name = f"{prefix}_{sound_file.stem.lower()}"
-				self.audio_manager.preload_sound(name, sound_file)
-
-		self.nav_sounds = {k for k in self.audio_manager.cache if k.startswith("nav")}
-		self.type_sounds = {k for k in self.audio_manager.cache if k.startswith("type")}
+	def _refresh_sound_sets(self) -> None:
+		cache = self.audio_manager.cache
+		self.nav_sounds = {k for k in cache if k.startswith("nav")}
+		self.type_sounds = {k for k in cache if k.startswith("type")}
 		self.type_sounds_list = list(self.type_sounds)
 
+	def cache_sounds(self) -> None:
+		# Decoding runs on a background thread; sets are refreshed via callback.
+		self.audio_manager.load_sounds(self._collect_sound_entries(), on_done=self._refresh_sound_sets)
+
 	def reload_audio(self) -> None:
-		self.audio_manager.clear_all()
+		self.audio_manager.clear_players()
 		self.cache_sounds()
 
 	def play_nav(self, sound_id: str, obj: NVDAObjects.NVDAObject | None = None) -> None:
