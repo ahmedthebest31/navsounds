@@ -1,0 +1,88 @@
+# Simplified Chinese translation for the navSounds NVDA add-on.
+# Copyright (C) 2023-2026 navSounds contributors
+# This file is distributed under the same license as the navSounds package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: navSounds 2.2.0\n"
+"POT-Creation-Date: 2026-07-24 05:00+0300\n"
+"PO-Revision-Date: 2026-08-25 00:36+0800\n"
+"Last-Translator: ChenZ <mail@chenz.cloud>\n"
+"Language-Team: Simplified Chinese\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
+msgid "navigation sounds"
+msgstr "导航音效"
+
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
+msgid "Disable navigation sounds"
+msgstr "禁用导航音效"
+
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
+msgid "Enable navigation sounds"
+msgstr "启用导航音效"
+
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
+msgid "Disable typing sounds"
+msgstr "禁用打字音效"
+
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
+msgid "Enable typing sounds"
+msgstr "启用打字音效"
+
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
+msgid "Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds."
+msgstr "按一次在开启和关闭对象声音之间切换，按两次在开启和关闭打字声音之间切换。"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "select sound"
+msgstr "选择声音"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "say element roles"
+msgstr "读出元素角色"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "say element states"
+msgstr "读出元素状态"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "play sounds on mouse hover"
+msgstr "鼠标悬停时播放声音"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "mouse hover delay (ms)"
+msgstr "鼠标悬停延迟（毫秒）"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "keyboard typing sound"
+msgstr "键盘打字声"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "enable typing sound in text boxes only"
+msgstr "仅在文本框中启用打字声"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "select typing sound"
+msgstr "选择打字声"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "play navigation sounds during arrow key navigation"
+msgstr "使用方向键导航时播放导航音效"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "volume"
+msgstr "音量"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open sounds folder"
+msgstr "打开声音文件夹"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "donate"
+msgstr "捐赠"
