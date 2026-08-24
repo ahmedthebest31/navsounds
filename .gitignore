@@ -12,3 +12,4 @@ Thumbs.db
 .pytest_cache/
 .ruff_cache/
 *.egg-info/
+PROGRESS_TRACKER.md

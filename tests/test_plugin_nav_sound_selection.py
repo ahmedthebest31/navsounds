@@ -102,7 +102,7 @@ def test_play_nav_for_object_prefers_first_state_sound(monkeypatch):
 	played = []
 	nav_sounds = {"nav_pressed", "nav_button"}
 
-	def check_and_play(name):
+	def check_and_play(name, obj=None):
 		sound_id = f"nav_{name}"
 		if sound_id in nav_sounds:
 			played.append(sound_id)
@@ -129,7 +129,7 @@ def test_play_nav_for_object_falls_back_to_role(monkeypatch):
 	played = []
 	nav_sounds = {"nav_button"}
 
-	def check_and_play(name):
+	def check_and_play(name, obj=None):
 		sound_id = f"nav_{name}"
 		if sound_id in nav_sounds:
 			played.append(sound_id)

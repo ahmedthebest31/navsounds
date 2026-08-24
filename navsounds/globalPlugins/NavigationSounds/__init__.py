@@ -25,6 +25,13 @@ addonHandler.initTranslation()
 _: Callable[[str], str]
 
 ROLE_SECTION = "NavigationSounds"
+# Repeated focus/caret events for the SAME element within this window are
+# treated as duplicates and suppressed. Electron/Chromium re-sends focus and
+# caret events for one element with 100ms-400ms spacing, so the old 60ms
+# time-only throttle let duplicates through.
+NAV_DUPLICATE_WINDOW_SECONDS = 0.25
+# Fallback throttle when no object identity is available for dedup.
+NAV_NO_OBJECT_THROTTLE_SECONDS = 0.06
 confspec = {
 	"sayRoles": "boolean(default=false)",
 	"sayStates": "boolean(default=true)",
@@ -138,22 +145,31 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.audio_manager.clear_all()
 		self.cache_sounds()
 
-	def play_nav(self, sound_id: str) -> None:
+	def play_nav(self, sound_id: str, obj: NVDAObjects.NVDAObject | None = None) -> None:
 		if not self.cfg_sounds:
 			return
 
-		now = time.time()
-		if now - self._last_nav_time < 0.06:
-			return
-		self._last_nav_time = now
+		now = time.monotonic()
+		elapsed = now - getattr(self, "_last_nav_time", 0.0)
 
+		if obj is not None:
+			last_obj = getattr(self, "_last_nav_obj", None)
+			if elapsed < NAV_DUPLICATE_WINDOW_SECONDS and last_obj is not None and obj == last_obj:
+				# Duplicate event for the same element (common in Electron/Chromium).
+				return
+		elif elapsed < NAV_NO_OBJECT_THROTTLE_SECONDS:
+			# No element identity available: fall back to a short global throttle.
+			return
+
+		self._last_nav_time = now
+		self._last_nav_obj = obj
 		self.audio_manager.play(sound_id)
 
 	def play_typing(self, _: str) -> None:
 		if not self.role_section["typing"]:
 			return
 
-		now = time.time()
+		now = time.monotonic()
 		if now - self._last_type_time < 0.07:
 			return
 		self._last_type_time = now
@@ -162,10 +178,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			sound_id = choice(self.type_sounds_list)
 			self.audio_manager.play(sound_id)
 
-	def _check_and_play_nav(self, name: str) -> bool:
+	def _check_and_play_nav(self, name: str, obj: NVDAObjects.NVDAObject | None = None) -> bool:
 		cache_key = f"nav_{name}"
 		if cache_key in self.nav_sounds:
-			self.play_nav(cache_key)
+			self.play_nav(cache_key, obj)
 			return True
 		return False
 
@@ -196,7 +212,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 					name = State(state).name.replace("_", "").lower()
 				except ValueError:
 					continue
-				if self._check_and_play_nav(name):
+				if self._check_and_play_nav(name, obj):
 					return True
 
 		role = getattr(obj, "role", None)
@@ -207,7 +223,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			name = Role(role).name.replace("_", "").lower()
 		except ValueError:
 			return False
-		return self._check_and_play_nav(name)
+		return self._check_and_play_nav(name, obj)
 
 	def editable(self, obj: NVDAObjects.NVDAObject) -> bool:
 		controls = (
@@ -242,7 +258,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			ignored_roles = {Role.DOCUMENT, Role.WINDOW, Role.PANE, Role.APPLICATION, Role.UNKNOWN}
 
 			if getattr(obj, "role", None) not in ignored_roles and obj != getattr(self, "_last_mouse_obj", None):
-				now = time.time()
+				now = time.monotonic()
 				delay_ms = self.role_section.get("mouseHoverDelay", 270)
 				delay_sec = delay_ms / 1000.0
 
