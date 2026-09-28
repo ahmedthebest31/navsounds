@@ -32,6 +32,9 @@ ROLE_SECTION = "NavigationSounds"
 # caret events for one element with 100ms-400ms spacing, so the old 60ms
 # time-only throttle let duplicates through.
 NAV_DUPLICATE_WINDOW_SECONDS = 0.25
+# Minimum interval between navigation sounds across different elements to prevent
+# audio collisions during rapid focus transitions (e.g. spamming Tab on Windows desktop/taskbar).
+NAV_INTER_OBJECT_THROTTLE_SECONDS = 0.05
 # Fallback throttle when no object identity is available for dedup.
 NAV_NO_OBJECT_THROTTLE_SECONDS = 0.06
 # Announcement filtering only applies to the reasons that actually play
@@ -96,8 +99,15 @@ def _state_sort_key(state: Any) -> tuple[int, str]:
 	return (order, name)
 
 
+# Fallback mappings for roles when a sound pack does not provide a specific sound.
+ROLE_FALLBACKS: dict[str, str] = {
+	"togglebutton": "button",
+}
+
+
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	scriptCategory = _("navigation sounds")
+	ROLE_FALLBACKS = ROLE_FALLBACKS
 
 	def __init__(self, *args: Any, **kwargs: Any):
 		super().__init__(*args, **kwargs)
@@ -202,6 +212,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			if elapsed < NAV_DUPLICATE_WINDOW_SECONDS and last_obj is not None and obj == last_obj:
 				# Duplicate event for the same element (common in Electron/Chromium).
 				return
+			if elapsed < NAV_INTER_OBJECT_THROTTLE_SECONDS:
+				# Rapid successive event across different elements: throttle to prevent sound collision.
+				return
 		elif elapsed < NAV_NO_OBJECT_THROTTLE_SECONDS:
 			# No element identity available: fall back to a short global throttle.
 			return
@@ -268,7 +281,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			name = Role(role).name.replace("_", "").lower()
 		except ValueError:
 			return False
-		return self._check_and_play_nav(name, obj)
+		if self._check_and_play_nav(name, obj):
+			return True
+
+		fallback = getattr(self, "ROLE_FALLBACKS", ROLE_FALLBACKS).get(name)
+		if fallback:
+			return self._check_and_play_nav(fallback, obj)
+
+		return False
 
 	def editable(self, obj: NVDAObjects.NVDAObject) -> bool:
 		# Values verified against official source/controlTypes/role.py:
@@ -358,7 +378,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 		if role is not None and not self.say_roles:
 			try:
-				if "nav_" + Role(role).name.replace("_", "").lower() in self.nav_sounds:
+				role_name = Role(role).name.replace("_", "").lower()
+				sound_name = role_name
+				fallbacks = getattr(self, "ROLE_FALLBACKS", ROLE_FALLBACKS)
+				if f"nav_{sound_name}" not in self.nav_sounds and sound_name in fallbacks:
+					sound_name = fallbacks[sound_name]
+				if f"nav_{sound_name}" in self.nav_sounds:
 					if "role" in kwargs:
 						del kwargs["role"]
 			except ValueError:

@@ -99,7 +99,11 @@ class BrowseModeQuickNavInterceptor:
 				if role is not None:
 					try:
 						name = Role(role).name.replace("_", "").lower()
-						self.plugin._check_and_play_nav(name, obj)
+						if not self.plugin._check_and_play_nav(name, obj):
+							fallbacks = getattr(self.plugin, "ROLE_FALLBACKS", {})
+							fallback = fallbacks.get(name)
+							if fallback:
+								self.plugin._check_and_play_nav(fallback, obj)
 					except (ValueError, AttributeError):
 						pass
 
