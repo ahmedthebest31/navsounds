@@ -310,3 +310,97 @@ def test_play_nav_respects_master_switch(monkeypatch):
 	host.play_nav("nav_heading")
 
 	assert played == []
+
+
+def test_play_nav_for_object_togglebutton_falls_back_to_button(monkeypatch):
+	plugin_module = load_plugin_module(monkeypatch)
+
+	played = []
+	nav_sounds = {"nav_button"}
+
+	def check_and_play(name, obj=None):
+		sound_id = f"nav_{name}"
+		if sound_id in nav_sounds:
+			played.append(sound_id)
+			return True
+		return False
+
+	plugin = SimpleNamespace(
+		cfg_sounds=True,
+		_check_and_play_nav=check_and_play,
+		_last_nav_time=0.0,
+		ROLE_FALLBACKS=plugin_module.ROLE_FALLBACKS,
+	)
+
+	plugin_module.GlobalPlugin._play_nav_for_object(
+		plugin,
+		SimpleNamespace(states=[], role="togglebutton"),
+	)
+
+	assert played == ["nav_button"]
+
+
+def test_play_nav_for_object_togglebutton_prefers_togglebutton_sound(monkeypatch):
+	plugin_module = load_plugin_module(monkeypatch)
+
+	played = []
+	nav_sounds = {"nav_togglebutton", "nav_button"}
+
+	def check_and_play(name, obj=None):
+		sound_id = f"nav_{name}"
+		if sound_id in nav_sounds:
+			played.append(sound_id)
+			return True
+		return False
+
+	plugin = SimpleNamespace(
+		cfg_sounds=True,
+		_check_and_play_nav=check_and_play,
+		_last_nav_time=0.0,
+		ROLE_FALLBACKS=plugin_module.ROLE_FALLBACKS,
+	)
+
+	plugin_module.GlobalPlugin._play_nav_for_object(
+		plugin,
+		SimpleNamespace(states=[], role="togglebutton"),
+	)
+
+	assert played == ["nav_togglebutton"]
+
+
+def test_togglebutton_role_suppressed_when_falling_back_to_button(monkeypatch):
+	plugin_module = load_plugin_module(monkeypatch)
+	host = _make_suppression_host(plugin_module)
+
+	result = host.get_property2_speech(
+		reason=_Reason("FOCUS"),
+		role="togglebutton",
+	)
+
+	assert "role" not in result
+	assert "ORIG" in result
+
+
+def test_play_nav_throttles_rapid_successive_different_objects(monkeypatch):
+	plugin_module = load_plugin_module(monkeypatch)
+	clock = {"now": 1000.0}
+	monkeypatch.setattr(plugin_module.time, "monotonic", lambda: clock["now"])
+
+	host, played = _make_play_nav_host(plugin_module)
+	first = SimpleNamespace(role="button")
+	second = SimpleNamespace(role="togglebutton")
+	third = SimpleNamespace(role="link")
+
+	# First element plays immediately
+	host.play_nav("nav_button", first)
+	assert played == ["nav_button"]
+
+	# Second element arrives 20ms later (rapid focus transition) - throttled
+	clock["now"] += 0.02
+	host.play_nav("nav_togglebutton", second)
+	assert played == ["nav_button"]
+
+	# Third element arrives after inter-element throttle (>= 50ms since last play) - plays
+	clock["now"] += 0.04
+	host.play_nav("nav_link", third)
+	assert played == ["nav_button", "nav_link"]
