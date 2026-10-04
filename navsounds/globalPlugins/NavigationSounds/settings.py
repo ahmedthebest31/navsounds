@@ -1,4 +1,5 @@
 import os
+from datetime import date
 from pathlib import Path
 from typing import Any, Callable
 import webbrowser as web
@@ -8,12 +9,14 @@ import wx
 import addonHandler
 from gui import guiHelper
 from gui.settingsDialogs import SettingsPanel
+from logHandler import log
 import ui
 
 from .theme_import import (
 	NAV_KIND,
 	TYPE_KIND,
 	ThemeImportError,
+	get_user_themes_root,
 	import_theme_zip,
 	list_user_themes,
 	read_archive_wav_stems,
@@ -29,8 +32,41 @@ set_translator(_)
 # opens a browser; it never talks to the network itself.
 STORE_URL = "https://ahmedthebest31.github.io/navsounds/store/"
 
+# Both donation pages are plain web pages handed to the browser, exactly like
+# the store link.
+PAYPAL_URL = "https://www.paypal.me/ahmedthebest31"
+INSTAPAY_URL = "https://ipn.eg/S/ahmedsamyelkhouly/instapay/1KWwcR"
+
+# How often the startup reminder may come back. Thirty days keeps it present
+# through a release cycle without turning into nagging, and the user can switch
+# it off permanently from the dialog itself.
+DONATION_PROMPT_INTERVAL_DAYS = 30
+
 # Order must match the choices offered by the theme type dialog.
 KIND_CHOICES = (NAV_KIND, TYPE_KIND)
+
+
+def should_prompt_for_donation(
+	enabled: bool,
+	last_shown: str,
+	today: date,
+	interval_days: int = DONATION_PROMPT_INTERVAL_DAYS,
+) -> bool:
+	"""Whether the startup donation reminder is due.
+
+	Kept free of wx and of NVDA imports so the schedule can be tested directly.
+	A damaged stored date is treated as "never shown" rather than silently
+	suppressing the reminder forever.
+	"""
+	if not enabled:
+		return False
+	if not last_shown:
+		return True
+	try:
+		previous = date.fromisoformat(last_shown)
+	except ValueError:
+		return True
+	return (today - previous).days >= interval_days
 
 
 class NavSettingsPanel(SettingsPanel):
@@ -115,8 +151,12 @@ class NavSettingsPanel(SettingsPanel):
 		import_theme.Bind(wx.EVT_BUTTON, self.onimporttheme)
 		sizer_helper.addItem(store_buttons)
 
-		b = sizer_helper.addItem(wx.Button(self, label=_("open sounds folder")))
-		b.Bind(wx.EVT_BUTTON, self.onopen)
+		folder_buttons = guiHelper.ButtonHelper(wx.HORIZONTAL)
+		open_themes = folder_buttons.addButton(self, label=_("open themes folder"), name="themes")
+		open_themes.Bind(wx.EVT_BUTTON, self.onopenthemes)
+		open_bundled = folder_buttons.addButton(self, label=_("open bundled sounds folder"), name="bundled")
+		open_bundled.Bind(wx.EVT_BUTTON, self.onopen)
+		sizer_helper.addItem(folder_buttons)
 
 		donate = sizer_helper.addItem(wx.Button(self, label=_("donate")))
 		donate.Bind(wx.EVT_BUTTON, self.ondonate)
@@ -138,9 +178,28 @@ class NavSettingsPanel(SettingsPanel):
 		self.mouse_delay_ctrl.Enable(is_enabled)
 		evt.Skip()
 
+	def onopenthemes(self, evt: wx.Event) -> None:
+		# Created on demand, so the very first press is useful instead of failing
+		# on a path that does not exist yet for a user who never imported a pack.
+		themes_path = get_user_themes_root(self.main_plugin.config_path)
+		try:
+			themes_path.mkdir(parents=True, exist_ok=True)
+			os.startfile(themes_path)
+		except OSError as error:
+			log.warning(f"Could not open the themes folder: {error}")
+			ui.message(_("the themes folder could not be opened"))
+			return
+		ui.message(_("the themes folder is opened, your imported themes are inside it"))
+
 	def onopen(self, evt: wx.Event) -> None:
 		effects_path = Path(__file__).resolve().parent / "effects"
-		os.startfile(effects_path)
+		try:
+			os.startfile(effects_path)
+		except OSError as error:
+			log.warning(f"Could not open the bundled effects folder: {error}")
+			ui.message(_("the bundled sounds folder could not be opened"))
+			return
+		ui.message(_("the bundled sounds folder is opened"))
 
 	def onopenstore(self, evt: wx.Event) -> None:
 		# Same mechanism as the donate button: hand the URL to the browser and
@@ -198,7 +257,7 @@ class NavSettingsPanel(SettingsPanel):
 				label=_("theme type"),
 				choices=labels,
 				majorDimension=1,
-				style=wx.RB_GROUP,
+				style=wx.RA_SPECIFY_ROWS,
 			)
 			sizer.addItem(radio)
 			sizer.addDialogDismissButtons(wx.OK | wx.CANCEL)
@@ -243,7 +302,15 @@ class NavSettingsPanel(SettingsPanel):
 		the top of the list and an import is only ever appended below them.
 		"""
 		bundled = sorted(self._builtin_theme_names(kind), key=str.casefold)
-		imported = sorted(list_user_themes(self.main_plugin.config_path, kind), key=str.casefold)
+		# Never let the imported list break the panel: NVDA freezes its scrolled
+		# settings container while a category is being built and only Thaws it if
+		# the build succeeds, so one exception here would leave the dialog frozen
+		# and overlapping the previously shown category for the whole session.
+		try:
+			imported = sorted(list_user_themes(self.main_plugin.config_path, kind), key=str.casefold)
+		except (OSError, ThemeImportError) as error:
+			log.warning(f"Could not list imported {kind} themes: {error}")
+			imported = []
 		names: list[str] = []
 		seen: set[str] = set()
 		for name in bundled + imported:
@@ -314,6 +381,73 @@ class NavSettingsPanel(SettingsPanel):
 			self.main_plugin.reload_audio()
 
 	def ondonate(self, evt: wx.Event) -> None:
-		ui.message(_("please wait"))
-		web.open("https://www.paypal.me/ahmedthebest31")
-		ui.message(_("donation link is opened"))
+		show_donate_dialog(self, first_run=False)
+
+
+class DonateDialog(wx.Dialog):
+	"""Asks how the user wants to donate.
+
+	`first_run` is the variant shown after install: it carries the message about
+	the work that went into the add-on and a checkbox that stops the reminder.
+	"""
+
+	def __init__(self, parent: Any, first_run: bool = False) -> None:
+		super().__init__(parent, title=_("support navSounds development"), style=wx.DEFAULT_DIALOG_STYLE)
+		if first_run:
+			message = _(
+				"navSounds is free, and it always will be. A lot of work went into keeping it fast, "
+				"light and reliable on every device, including yours. If you like it, a small "
+				"donation helps that work continue."
+			)
+		else:
+			message = _("choose how you would like to donate")
+
+		self.choice = ""
+		self.dont_ask: Any = None
+
+		sizer = wx.BoxSizer(wx.VERTICAL)
+		sizer.Add(wx.StaticText(self, label=message), flag=wx.ALL | wx.EXPAND, border=16)
+		if first_run:
+			self.dont_ask = wx.CheckBox(self, label=_("do not show this again"))
+			sizer.Add(self.dont_ask, flag=wx.LEFT | wx.RIGHT | wx.TOP, border=16)
+		buttons = guiHelper.ButtonHelper(wx.HORIZONTAL)
+		paypal = buttons.addButton(self, label=_("donate with PayPal"), name="paypal")
+		paypal.Bind(wx.EVT_BUTTON, self.onChoosePayPal)
+		instapay = buttons.addButton(self, label=_("donate with InstaPay Egypt"), name="instapay")
+		instapay.Bind(wx.EVT_BUTTON, self.onChooseInstaPay)
+		# Escape and the close button mean "not now", never an accidental donation.
+		sizer.Add(buttons, flag=wx.ALL | wx.EXPAND, border=16)
+		sizer.Add(wx.Button(self, wx.ID_CANCEL, _("close")), flag=wx.LEFT | wx.RIGHT | wx.BOTTOM, border=16)
+		self.SetSizerAndFit(sizer)
+		paypal.SetFocus()
+
+	def onChoosePayPal(self, evt: wx.Event) -> None:
+		self.choice = PAYPAL_URL
+		self.EndModal(wx.ID_OK)
+
+	def onChooseInstaPay(self, evt: wx.Event) -> None:
+		self.choice = INSTAPAY_URL
+		self.EndModal(wx.ID_OK)
+
+
+def show_donate_dialog(parent: Any, first_run: bool = False) -> bool:
+	"""Opens the donation dialog and returns True if the reminder was switched off."""
+	result = wx.ID_CANCEL
+	choice = ""
+	disable = False
+	try:
+		with DonateDialog(parent, first_run) as dialog:
+			result = dialog.ShowModal()
+			choice = dialog.choice
+			checkbox = dialog.dont_ask
+			disable = bool(checkbox is not None and checkbox.GetValue())
+	except Exception:
+		log.exception("The donation dialog could not be shown")
+		return False
+	if result != wx.ID_OK or not choice:
+		return disable
+	if not web.open(choice):
+		ui.message(_("the donation page could not be opened"))
+		return disable
+	ui.message(_("the donation page is opened in your web browser"))
+	return disable

@@ -1,4 +1,5 @@
 import time
+from datetime import date
 from pathlib import Path
 from random import choice
 from typing import Any, Callable
@@ -9,6 +10,7 @@ import addonHandler
 import api
 import config
 from controlTypes import OutputReason, Role, State
+import globalVars
 import globalPluginHandler
 from gui.settingsDialogs import NVDASettingsDialog
 import inputCore
@@ -20,9 +22,32 @@ from speech.commands import SpeechCommand
 import ui
 
 from .audio import MultiPlayerManager
-from .settings import NavSettingsPanel
+from .settings import NavSettingsPanel, should_prompt_for_donation, show_donate_dialog
 from .browser import BrowseModeMoveListener
 from .theme_import import NAV_KIND, TYPE_KIND, get_user_themes_root
+
+
+def _resolve_config_dir(config_module: Any, global_vars_module: Any, nvda_state: Any = None) -> Path:
+	"""NVDA's user configuration directory, resolved without assuming a version.
+
+	NVDA has moved this value between modules over the years, so every lookup is
+	a guarded getattr and the candidates are tried newest first. Nothing here may
+	raise: an exception inside a settings panel leaves NVDA's settings dialog
+	frozen for the rest of the session, because the dialog only Thaws its
+	scrolled panel when the panel builds without error.
+	"""
+	write_paths = getattr(nvda_state, "WritePaths", None)
+	config_dir = getattr(write_paths, "configDir", None)
+	if config_dir:
+		return Path(config_dir)
+	override = getattr(getattr(global_vars_module, "appArgs", None), "configPath", None)
+	if override:
+		return Path(override)
+	get_default = getattr(config_module, "getUserDefaultConfigPath", None)
+	if get_default is not None:
+		return Path(get_default())
+	return Path(getattr(global_vars_module, "appDir", ".")) / "userConfig"
+
 
 addonHandler.initTranslation()
 _: Callable[[str], str]
@@ -75,6 +100,10 @@ confspec = {
 	"edit": "boolean(default=false)",
 	"volume": "integer(default=50)",
 	"arrowNavSounds": "boolean(default=true)",
+	# The startup donation reminder: an empty date means it never ran, which is
+	# what makes the first prompt appear right after an install or an update.
+	"donationPromptEnabled": "boolean(default=true)",
+	"donationPromptLastShown": "string(default='')",
 }
 
 if config.conf is not None:
@@ -158,6 +187,27 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		if self.cfg_sounds:
 			self.browser_interceptor.patch()
 
+		# Deferred to the wx event loop so a modal dialog can never delay startup.
+		# wx.CallAfter is the documented way to run work once the current event
+		# handling finishes; NVDA's guiHelper has no scheduling helper of its own.
+		wx.CallAfter(self._maybe_prompt_for_donation)
+
+	def _maybe_prompt_for_donation(self) -> None:
+		try:
+			if not should_prompt_for_donation(
+				self.role_section["donationPromptEnabled"],
+				self.role_section["donationPromptLastShown"],
+				date.today(),
+			):
+				return
+			disable = show_donate_dialog(None, first_run=True)
+			self.role_section["donationPromptLastShown"] = date.today().isoformat()
+			if disable:
+				self.role_section["donationPromptEnabled"] = False
+		except Exception:
+			# A reminder must never be able to break NVDA startup.
+			log.debug("The donation reminder was skipped", exc_info=True)
+
 	@property
 	def role_section(self) -> dict[str, Any]:
 		if config.conf is None or not config.conf.get(ROLE_SECTION):
@@ -175,7 +225,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		Stays valid across add-on updates, which is why imported themes live
 		here instead of next to the bundled packs.
 		"""
-		return Path(config.conf.appArgs.configPath)
+		try:
+			import NVDAState
+		except ImportError:
+			# Releases before NVDA 2024 have no NVDAState module; the remaining
+			# lookups in _resolve_config_dir still find the directory there.
+			NVDAState = None
+		return _resolve_config_dir(config, globalVars, NVDAState)
 
 	@property
 	def user_themes_path(self) -> Path:

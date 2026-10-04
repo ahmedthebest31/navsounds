@@ -86,3 +86,159 @@ msgstr ""
 #: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "donate"
 msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "choose how you would like to donate"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "close"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "do not show this again"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "donate with InstaPay Egypt"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "donate with PayPal"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "import sound theme..."
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "navigation sounds (roles and states)"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "no free name was found for the imported theme"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open bundled sounds folder"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open sound theme archive"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open theme store"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open themes folder"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "support navSounds development"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains an absolute path"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains an unsafe path"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains no readable sound files"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains no sound files"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains too many items"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive could not be read: {}"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive is too large to import"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the bundled sounds folder could not be opened"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the bundled sounds folder is opened"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the donation page could not be opened"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the donation page is opened in your web browser"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the selected archive does not exist"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the theme could not be imported: {}"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the theme could not be installed: {}"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the theme store could not be opened, visit {}"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the theme store is opened in your web browser"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the themes folder could not be opened"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the themes folder is opened, your imported themes are inside it"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the user themes folder could not be created: {}"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "theme '{}' was imported with {} sound files"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "theme archives"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "theme type"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "typing sounds (keyboard)"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "which sounds does '{}' contain?"
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "{} unusable file was skipped."
+msgstr ""
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "{} {}"
+msgstr ""

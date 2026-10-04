@@ -1,6 +1,32 @@
 import sys
 import builtins
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
+
+
+class FakeWx(ModuleType):
+	"""Stands in for wx: any attribute resolves to a fresh dummy class.
+
+	The panel is never built here, but module level code touches wx heavily
+	(annotations are evaluated at def time, and classes subclass wx types), so a
+	fixed attribute list would break every time a new widget is referenced.
+	"""
+
+	def __getattr__(self, name: str):
+		value = type(name, (), {})
+		setattr(self, name, value)
+		return value
+
+
+def make_fake_wx() -> FakeWx:
+	wx = FakeWx("wx")
+	wx.SL_HORIZONTAL = 0
+	wx.Sizer = object
+	wx.Event = object
+	# wx.CallAfter is how the plugin defers the donation reminder, so record what
+	# was scheduled instead of silently discarding it.
+	wx.scheduled = []
+	wx.CallAfter = lambda callback, *args, **kwargs: wx.scheduled.append(callback)
+	return wx
 
 
 class FakeState:
@@ -44,6 +70,11 @@ def load_plugin_module(monkeypatch, speech_module=None):
 	monkeypatch.setitem(sys.modules, "config", SimpleNamespace(conf=FakeConfig()))
 	monkeypatch.setitem(
 		sys.modules,
+		"globalVars",
+		SimpleNamespace(appArgs=SimpleNamespace(configPath=None), appDir="."),
+	)
+	monkeypatch.setitem(
+		sys.modules,
 		"controlTypes",
 		SimpleNamespace(OutputReason=SimpleNamespace(QUERY="query"), Role=FakeRole, State=FakeState),
 	)
@@ -70,7 +101,7 @@ def load_plugin_module(monkeypatch, speech_module=None):
 	monkeypatch.setitem(sys.modules, "speech", speech_module)
 	monkeypatch.setitem(sys.modules, "speech.commands", SimpleNamespace(SpeechCommand=object))
 	monkeypatch.setitem(sys.modules, "ui", SimpleNamespace(message=lambda message: None))
-	monkeypatch.setitem(sys.modules, "wx", SimpleNamespace(Sizer=object, Event=object, SL_HORIZONTAL=0))
+	monkeypatch.setitem(sys.modules, "wx", make_fake_wx())
 	monkeypatch.setitem(
 		sys.modules,
 		"logHandler",
