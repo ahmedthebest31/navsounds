@@ -406,3 +406,106 @@ def test_the_reminder_is_deferred_to_the_wx_event_loop():
 
 	assert "wx.CallAfter(self._maybe_prompt_for_donation)" in text
 	assert "runOnceAsync" not in text
+
+
+# --- A faithful-enough wx, because the permissive stub cannot catch sizer bugs.
+#
+# FakeWx mints a fresh dummy class per attribute, so wx.BoxSizer(...) was
+# callable and every sizer accepted every argument. That is why
+# "sizer.Add(buttons)" passed the suite and then raised
+# "Sizer.Add(): arguments did not match any overloaded call" inside a real
+# NVDA, where ButtonHelper is not a sizer. These fakes reproduce the one rule
+# wx really enforces: a sizer only takes windows, sizers and spacers.
+
+
+class FakeWindow:
+	def __init__(self, *args, **kwargs):
+		self.parent = args[0] if args else kwargs.get("parent")
+		self.children = []
+
+	def Bind(self, *args, **kwargs):
+		self.bound = args
+
+	def SetFocus(self):
+		self.focused = True
+
+	def SetSizerAndFit(self, sizer):
+		self.sizer = sizer
+
+	def GetValue(self):
+		return False
+
+
+class FakeSizer:
+	def __init__(self, *args, **kwargs):
+		self.items = []
+
+	def Add(self, item, *args, **kwargs):
+		if not isinstance(item, (FakeWindow, FakeSizer)):
+			raise TypeError(f"Sizer.Add(): argument 1 has unexpected type {type(item).__name__!r}")
+		self.items.append(item)
+		return item
+
+	def AddSpacer(self, size):
+		self.items.append(size)
+
+	def Fit(self, *args, **kwargs):
+		pass
+
+
+class FakeButtonHelper:
+	"""Mirrors NVDA's guiHelper.ButtonHelper: a container, not a sizer."""
+
+	def __init__(self, orientation):
+		self._sizer = FakeSizer(orientation)
+		self._added = False
+
+	@property
+	def sizer(self):
+		return self._sizer
+
+	def addButton(self, *args, **kwargs):
+		if self._added:
+			self._sizer.AddSpacer(8)
+		button = FakeWindow(*args, **kwargs)
+		self._sizer.Add(button)
+		self._added = True
+		return button
+
+
+def load_settings_with_real_sizers(monkeypatch):
+	"""Reload settings on top of wx fakes that enforce what wx really enforces."""
+	load_plugin_module(monkeypatch)
+	import sys
+
+	wx = sys.modules["wx"]
+	wx.Sizer = FakeSizer
+	wx.BoxSizer = FakeSizer
+	for index, flag in enumerate(("ALL", "EXPAND", "LEFT", "RIGHT", "TOP", "BOTTOM", "HORIZONTAL", "VERTICAL")):
+		setattr(wx, flag, 1 << index)
+	for name in ("Dialog", "StaticText", "CheckBox", "Button"):
+		setattr(wx, name, type(name, (FakeWindow,), {}))
+	sys.modules["gui"].guiHelper = SimpleNamespace(ButtonHelper=FakeButtonHelper)
+
+	# The plugin package imports settings at module level, so settings is already
+	# cached and its classes already hold the dummy wx.Dialog. Drop it and import
+	# it again so the dialog subclasses the faithful base class.
+	for module_name in list(sys.modules):
+		if module_name.startswith("navsounds.globalPlugins.NavigationSounds"):
+			monkeypatch.delitem(sys.modules, module_name, raising=False)
+
+	import navsounds.globalPlugins.NavigationSounds.settings as settings_module
+
+	return settings_module
+
+
+def test_the_donation_dialog_can_actually_be_built(monkeypatch):
+	"""A ButtonHelper is not a sizer; adding it to one directly raised a TypeError in NVDA."""
+	settings_module = load_settings_with_real_sizers(monkeypatch)
+
+	first_run = settings_module.DonateDialog(object(), first_run=True)
+	repeat_visit = settings_module.DonateDialog(object(), first_run=False)
+
+	assert first_run.dont_ask is not None
+	assert repeat_visit.dont_ask is None
+	assert [item for item in first_run.sizer.items if isinstance(item, FakeSizer)]

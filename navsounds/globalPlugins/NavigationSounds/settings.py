@@ -416,7 +416,10 @@ class DonateDialog(wx.Dialog):
 		instapay = buttons.addButton(self, label=_("donate with InstaPay Egypt"), name="instapay")
 		instapay.Bind(wx.EVT_BUTTON, self.onChooseInstaPay)
 		# Escape and the close button mean "not now", never an accidental donation.
-		sizer.Add(buttons, flag=wx.ALL | wx.EXPAND, border=16)
+		# A ButtonHelper is not a sizer: it only becomes one through its "sizer"
+		# property. BoxSizerHelper.addItem() unwraps it for you, but a plain
+		# wx.Sizer.Add() does not, and rejects it with a TypeError.
+		sizer.Add(buttons.sizer, flag=wx.ALL | wx.EXPAND, border=16)
 		sizer.Add(wx.Button(self, wx.ID_CANCEL, _("close")), flag=wx.LEFT | wx.RIGHT | wx.BOTTOM, border=16)
 		self.SetSizerAndFit(sizer)
 		paypal.SetFocus()
