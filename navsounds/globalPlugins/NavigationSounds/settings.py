@@ -27,7 +27,7 @@ set_translator(_)
 # Curated sound packs, served as static files and updated by hand. Kept as a
 # single constant so a future domain change stays one edit. The add-on only
 # opens a browser; it never talks to the network itself.
-STORE_URL = "https://ahmedthebest31.github.io/navsounds/"
+STORE_URL = "https://ahmedthebest31.github.io/navsounds/store/"
 
 # Order must match the choices offered by the theme type dialog.
 KIND_CHOICES = (NAV_KIND, TYPE_KIND)

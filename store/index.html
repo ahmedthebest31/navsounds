@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>navSounds sound store</title>
+<meta name="description" content="Download sound themes for the navSounds NVDA add-on: navigation sounds and keyboard typing sounds, ready to import from inside NVDA.">
+<style>
+/* ---------------------------------------------------------------------------
+   Design tokens. Light values are the default; the dark block only inverts
+   neutrals and swaps the accent for a lighter blue so contrast still passes.
+   --------------------------------------------------------------------------- */
+:root {
+	--bg: #f9fafb;
+	--surface: #ffffff;
+	--border: #e5e7eb;
+	--text: #111827;
+	--muted: #4b5563;
+	--accent: #1e40af;
+	--accent-strong: #1e3a8a;
+	--accent-soft: #dbeafe;
+	--accent-text: #1e3a8a;
+	--focus: #1d4ed8;
+	--shadow: 0 1px 3px rgba(17, 24, 39, 0.08);
+	--shadow-lift: 0 4px 6px rgba(17, 24, 39, 0.07);
+	--radius-sm: 4px;
+	--radius-md: 8px;
+	--radius-lg: 12px;
+	--wave: #1e40af;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #0f172a;
+		--surface: #1e293b;
+		--border: #334155;
+		--text: #f1f5f9;
+		--muted: #cbd5e1;
+		--accent: #93c5fd;
+		--accent-strong: #bfdbfe;
+		--accent-soft: #1e3a8a;
+		--accent-text: #bfdbfe;
+		--focus: #93c5fd;
+		--shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+		--shadow-lift: 0 4px 6px rgba(0, 0, 0, 0.45);
+		--wave: #93c5fd;
+	}
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* The filter hides cards with the hidden attribute, but the card is a grid
+   item, and an explicit display would otherwise beat the attribute. */
+[hidden] { display: none !important; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+	margin: 0;
+	padding: 0;
+	background: var(--bg);
+	color: var(--text);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.625;
+}
+
+.wrap {
+	max-width: 1080px;
+	margin: 0 auto;
+	padding: 24px 24px 64px;
+}
+
+.prose { max-width: 70ch; }
+
+h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; margin: 0 0 16px; }
+h1 { font-size: 2rem; font-weight: 700; }
+h2 { font-size: 1.5rem; font-weight: 600; margin-top: 0; }
+h3 { font-size: 1.25rem; font-weight: 600; }
+p { margin: 0 0 16px; }
+a { color: var(--accent); }
+a:hover { color: var(--accent-strong); }
+
+:focus-visible {
+	outline: 3px solid var(--focus);
+	outline-offset: 2px;
+	border-radius: var(--radius-sm);
+}
+
+.skip-link {
+	position: absolute;
+	inset-inline-start: -9999px;
+	top: 0;
+	padding: 12px 16px;
+	background: var(--accent);
+	color: #ffffff;
+	font-weight: 600;
+	z-index: 10;
+}
+.skip-link:focus { inset-inline-start: 0; }
+
+.eyebrow {
+	margin: 0 0 4px;
+	color: var(--muted);
+	font-size: 0.875rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.lede { font-size: 1.125rem; max-width: 70ch; }
+.muted { color: var(--muted); }
+
+section { margin-top: 48px; }
+
+.how {
+	margin: 0;
+	padding: 24px;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow);
+	max-width: 70ch;
+}
+.how li { margin-bottom: 8px; }
+.how li:last-child { margin-bottom: 0; }
+.how code {
+	background: var(--accent-soft);
+	color: var(--accent-text);
+	padding: 2px 6px;
+	border-radius: var(--radius-sm);
+	font-size: 0.9375em;
+}
+
+fieldset {
+	margin: 0 0 24px;
+	padding: 0;
+	border: 0;
+}
+legend {
+	padding: 0;
+	margin-bottom: 8px;
+	font-weight: 600;
+}
+.filters { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.filter {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 44px;
+	padding: 8px 16px;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
+	cursor: pointer;
+}
+.filter:hover { border-color: var(--accent); }
+.filter input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+.filter:has(input:checked) {
+	border-color: var(--accent);
+	background: var(--accent-soft);
+	color: var(--accent-text);
+	font-weight: 600;
+}
+
+.pack-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 24px;
+}
+
+.pack {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	padding: 24px;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow);
+	transition: box-shadow 200ms ease-in-out;
+}
+.pack:hover { box-shadow: var(--shadow-lift); }
+.pack > p { max-width: 70ch; }
+
+.pack-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+.pack-head h3 { margin: 0; }
+
+.badge {
+	flex: none;
+	padding: 2px 8px;
+	background: var(--accent-soft);
+	color: var(--accent-text);
+	border-radius: var(--radius-sm);
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+.pack-author { color: var(--muted); font-size: 0.875rem; }
+
+.player-row { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.player-row audio { width: 100%; min-height: 44px; }
+.wave { display: block; width: 100%; height: 48px; }
+
+.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	margin-top: 16px;
+	padding: 12px 20px;
+	background: var(--accent);
+	color: #ffffff;
+	border: 1px solid var(--accent);
+	border-radius: var(--radius-md);
+	font-size: 1rem;
+	font-weight: 600;
+	text-decoration: none;
+	align-self: flex-start;
+	transition: background-color 150ms ease;
+}
+.button:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #ffffff; }
+
+.notice {
+	margin: 0;
+	padding: 16px 24px;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-inline-start: 4px solid var(--accent);
+	border-radius: var(--radius-md);
+	max-width: 70ch;
+}
+
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+footer {
+	margin-top: 64px;
+	padding-top: 24px;
+	border-top: 1px solid var(--border);
+	color: var(--muted);
+	font-size: 0.875rem;
+}
+
+@media (max-width: 480px) {
+	.wrap { padding: 16px 16px 48px; }
+	h1 { font-size: 1.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	* { transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#packs">Skip to the sound packs</a>
+
+<div class="wrap">
+
+<header>
+	<p class="eyebrow">navSounds add-on for NVDA</p>
+	<h1>Sound store</h1>
+	<p class="lede">This is the sound store for the navSounds add-on. Every pack below is a
+		zip of wav files that the add-on imports from inside NVDA, so you can change the
+		sounds without reinstalling the add-on. Navigation packs cover controls and states,
+		typing packs cover keyboard echoes in text fields.</p>
+	<p class="muted">All sounds are plain wav files. Nothing here runs code: an imported pack
+		is only ever a list of audio files.</p>
+</header>
+
+<main>
+<section aria-labelledby="how-heading">
+	<h2 id="how-heading">How to install a pack</h2>
+	<ol class="how">
+		<li>Download the <code>.zip</code> of the pack you want from the list below.</li>
+		<li>Open the NVDA settings dialog and go to the navSounds panel.</li>
+		<li>Press <strong>import sound theme...</strong> and choose the zip you downloaded.</li>
+		<li>Say which sounds it contains, then pick the new theme from <strong>select sound</strong>
+			or <strong>select typing sound</strong> and apply the settings.</li>
+	</ol>
+	<p class="muted">You can also press <strong>open theme store</strong> in the add-on panel to
+		come back to this page from NVDA.</p>
+</section>
+
+<section id="packs" aria-labelledby="packs-heading">
+	<h2 id="packs-heading">Sound packs</h2>
+
+	<fieldset>
+		<legend>Show</legend>
+		<div class="filters">
+			<label class="filter"><input type="radio" name="pack-filter" value="all" checked> All packs</label>
+			<label class="filter"><input type="radio" name="pack-filter" value="navigation"> Navigation sounds</label>
+			<label class="filter"><input type="radio" name="pack-filter" value="typing"> Typing sounds</label>
+		</div>
+	</fieldset>
+
+	<p id="pack-status" role="status" aria-atomic="true" class="muted"></p>
+
+	<div class="pack-grid">
+		<article class="pack" data-category="navigation">
+			<div class="pack-head">
+				<h3>Voiceover</h3>
+				<span class="badge">Navigation</span>
+			</div>
+			<p>Fifteen navigation sounds for button, checkbox, clock, combobox, document,
+				editable text, icon, link, list item, menu item, radio button, slider, split
+				button, tab, and tree view item.</p>
+			<p class="pack-author">by <a href="https://github.com/ahmedthebest31">ahmedthebest31</a></p>
+			<div class="player-row">
+				<audio controls preload="none" data-player data-name="Voiceover" data-wave="wave-voiceover"
+					src="packs/voiceover/sample.wav"
+					aria-label="Sound preview of the Voiceover navigation pack"></audio>
+				<canvas class="wave" id="wave-voiceover" width="600" height="48" aria-hidden="true" hidden></canvas>
+			</div>
+			<a class="button" href="packs/voiceover/voiceover.zip" download>Download the zip</a>
+		</article>
+
+		<article class="pack" data-category="typing">
+			<div class="pack-head">
+				<h3>Classic Typewriter</h3>
+				<span class="badge">Typing</span>
+			</div>
+			<p>Six typing sounds with the slightly uneven strike of a mechanical keyboard. One
+				sound is played per key press while you type in a text field.</p>
+			<p class="pack-author">by <a href="https://github.com/ahmedthebest31">ahmedthebest31</a></p>
+			<div class="player-row">
+				<audio controls preload="none" data-player data-name="Classic Typewriter" data-wave="wave-classic-typewriter"
+					src="packs/classic-typewriter/sample.wav"
+					aria-label="Sound preview of the Classic Typewriter typing pack"></audio>
+				<canvas class="wave" id="wave-classic-typewriter" width="600" height="48" aria-hidden="true" hidden></canvas>
+			</div>
+			<a class="button" href="packs/classic-typewriter/classic-typewriter.zip" download>Download the zip</a>
+		</article>
+	</div>
+
+	<p id="packs-empty" hidden>No packs in this category yet.</p>
+
+	<p class="notice">Both packs above already ship with the add-on. They are listed here so you
+		can download and import them the same way as any other pack, and so you have a working
+		example of the format.</p>
+</section>
+
+<section aria-labelledby="submit-heading">
+	<h2 id="submit-heading">Submit a pack</h2>
+	<p class="prose">Made your own sounds? Open a new issue with the sound theme submission form,
+		describe the pack, and attach the zip. If you attach a short audio sample as well it
+		becomes the preview on this page, so people can hear the pack before they download it.</p>
+	<div class="actions">
+		<a class="button" href="https://github.com/ahmedthebest31/navsounds/issues/new?template=sound_theme_submission.yml">Open the submission form</a>
+	</div>
+	<p class="muted">You can be credited under any name you like, not only your GitHub account
+		name. Please test the pack on your own machine first, with the add-on and with NVDA, and
+		tell us which versions you used.</p>
+</section>
+
+<section aria-labelledby="donate-heading">
+	<h2 id="donate-heading">Support the project</h2>
+	<p class="prose">navSounds is free and always will be. If it saved you time, a donation keeps
+		the add-on maintained.</p>
+	<div class="actions">
+		<a class="button" href="https://www.paypal.me/ahmedthebest31">Donate with PayPal</a>
+	</div>
+</section>
+</main>
+
+<footer>
+	<p>navSounds is free software. Packs on this page are contributed by their authors and are
+		listed here as a convenience; report a problem with one in the repository issue tracker.</p>
+</footer>
+
+</div>
+
+<script>
+(function () {
+	"use strict";
+
+	var players = Array.prototype.slice.call(document.querySelectorAll("audio[data-player]"));
+	var cards = Array.prototype.slice.call(document.querySelectorAll(".pack"));
+	var status = document.getElementById("pack-status");
+	var empty = document.getElementById("packs-empty");
+
+	/* ---------------------------------------------------------------------
+	   One preview at a time. Starting a player stops every other one and
+	   rewinds it, so two samples can never talk over each other.
+	   --------------------------------------------------------------------- */
+	function stopOthers(current) {
+		players.forEach(function (other) {
+			if (other === current || other.paused) {
+				return;
+			}
+			other.pause();
+			other.currentTime = 0;
+		});
+	}
+
+	players.forEach(function (audio) {
+		audio.addEventListener("play", function () {
+			stopOthers(audio);
+			announce(audio);
+			showWave(audio);
+		});
+		audio.addEventListener("pause", function () {
+			hideWave(audio);
+		});
+		audio.addEventListener("ended", function () {
+			audio.currentTime = 0;
+			hideWave(audio);
+		});
+	});
+
+	/* The wave is decoration only, so it never carries information a screen
+	   reader needs: the pack name is announced in the live region instead. */
+	function announce(audio) {
+		if (!status) {
+			return;
+		}
+		status.textContent = "Playing the preview for " + (audio.dataset.name || "this pack") + ".";
+	}
+
+	function canvasFor(audio) {
+		var id = audio.dataset.wave;
+		return id ? document.getElementById(id) : null;
+	}
+
+	function motionOff() {
+		return Boolean(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+	}
+
+	/* ---------------------------------------------------------------------
+	   Wave effect. The Web Audio graph is built lazily and only for the
+	   player that is playing. If the browser refuses to build it (an old
+	   engine, or the page opened straight from disk, where the media has an
+	   opaque origin) the visual is skipped and the audio plays natively, so
+	   the effect can never silence a sample.
+	   --------------------------------------------------------------------- */
+	var context;
+	var analysers = new WeakMap();
+	var frame = 0;
+	var active = null;
+
+	function audioContext() {
+		if (context !== undefined) {
+			return context;
+		}
+		var Constructor = window.AudioContext || window.webkitAudioContext;
+		if (!Constructor) {
+			context = null;
+			return context;
+		}
+		try {
+			context = new Constructor();
+		} catch (err) {
+			context = null;
+		}
+		return context;
+	}
+
+	function analyserFor(audio) {
+		if (analysers.has(audio)) {
+			return analysers.get(audio);
+		}
+		var built = null;
+		var ac = audioContext();
+		if (ac) {
+			try {
+				var source = ac.createMediaElementSource(audio);
+				var analyser = ac.createAnalyser();
+				analyser.fftSize = 64;
+				source.connect(analyser);
+				built = analyser;
+			} catch (err) {
+				built = null;
+			}
+		}
+		analysers.set(audio, built);
+		return built;
+	}
+
+	function showWave(audio) {
+		var canvas = canvasFor(audio);
+		if (!canvas || motionOff()) {
+			return;
+		}
+		var analyser = analyserFor(audio);
+		if (!analyser) {
+			return;
+		}
+		var ac = audioContext();
+		if (ac && ac.state === "suspended" && ac.resume) {
+			ac.resume();
+		}
+		canvas.hidden = false;
+		active = audio;
+		if (!frame) {
+			frame = window.requestAnimationFrame(paint);
+		}
+	}
+
+	function hideWave(audio) {
+		var canvas = canvasFor(audio);
+		if (active === audio) {
+			active = null;
+			if (frame) {
+				window.cancelAnimationFrame(frame);
+				frame = 0;
+			}
+		}
+		if (!canvas) {
+			return;
+		}
+		canvas.hidden = true;
+		var context2d = canvas.getContext("2d");
+		if (context2d) {
+			context2d.clearRect(0, 0, canvas.width, canvas.height);
+		}
+	}
+
+	function paint() {
+		frame = 0;
+		if (!active) {
+			return;
+		}
+		var analyser = analysers.get(active);
+		var canvas = canvasFor(active);
+		if (analyser && canvas) {
+			draw(canvas, analyser);
+		}
+		frame = window.requestAnimationFrame(paint);
+	}
+
+	function draw(canvas, analyser) {
+		var context2d = canvas.getContext("2d");
+		if (!context2d) {
+			return;
+		}
+		var bins = new Uint8Array(analyser.frequencyBinCount);
+		analyser.getByteFrequencyData(bins);
+		var width = canvas.width;
+		var height = canvas.height;
+		var gap = 2;
+		var bar = Math.max(1, (width - gap * (bins.length - 1)) / bins.length);
+		var colour = window.getComputedStyle(canvas).getPropertyValue("--wave").trim() || "#1e40af";
+		context2d.clearRect(0, 0, width, height);
+		context2d.fillStyle = colour;
+		for (var i = 0; i < bins.length; i++) {
+			var level = bins[i] / 255;
+			var barHeight = Math.max(2, level * (height - 4));
+			context2d.fillRect(i * (bar + gap), (height - barHeight) / 2, bar, barHeight);
+		}
+	}
+
+	/* ---------------------------------------------------------------------
+	   Category filter. Cards are hidden with the hidden attribute so they
+	   leave the accessibility tree as well as the layout, and any player that
+	   gets hidden is stopped instead of playing out of sight.
+	   --------------------------------------------------------------------- */
+	function applyFilter(value) {
+		var shown = 0;
+		cards.forEach(function (card) {
+			var matches = value === "all" || card.dataset.category === value;
+			card.hidden = !matches;
+			if (!matches) {
+				var audio = card.querySelector("audio[data-player]");
+				if (audio && !audio.paused) {
+					audio.pause();
+				}
+			} else {
+				shown += 1;
+			}
+		});
+		if (empty) {
+			empty.hidden = shown !== 0;
+		}
+		if (status) {
+			status.textContent = shown + (shown === 1 ? " pack listed." : " packs listed.");
+		}
+	}
+
+	var filters = Array.prototype.slice.call(document.querySelectorAll("input[name='pack-filter']"));
+	filters.forEach(function (input) {
+		input.addEventListener("change", function () {
+			if (input.checked) {
+				applyFilter(input.value);
+			}
+		});
+	});
+
+	applyFilter("all");
+}());
+</script>
+</body>
+</html>

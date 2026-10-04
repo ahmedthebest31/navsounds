@@ -1,2 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Sound samples and theme archives must survive a commit byte for byte, so they
+# are declared binary instead of relying on the automatic NUL byte detection.
+*.wav binary
+*.zip binary

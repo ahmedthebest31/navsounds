@@ -3,6 +3,9 @@ __pycache__/
 *.pyo
 *.nvda-addon
 *.zip
+# The store publishes downloadable theme archives under store/packs/, so they
+# have to reach the repository even though build artifacts above must not.
+!store/packs/**/*.zip
 *.pot
 desktop.ini
 Thumbs.db

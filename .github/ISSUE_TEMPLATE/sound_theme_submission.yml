@@ -1,0 +1,87 @@
+name: Sound theme submission
+description: Offer a navigation or typing sound pack for the navSounds store
+title: "[Sound pack] "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for offering a pack. Every pack on the store is a zip of wav files that the
+        add-on imports from inside NVDA, and this page is the only listing.
+
+        GitHub issue forms have no file picker, so please **drag the file into the text box**
+        instead. GitHub uploads it and turns it into a link. The same works for the audio
+        sample.
+  - type: input
+    id: pack-name
+    attributes:
+      label: Pack name
+      description: The name shown on the store page and used as the folder name after import.
+      placeholder: Classic Typewriter
+    validations:
+      required: true
+  - type: input
+    id: credit-name
+    attributes:
+      label: Name to show on the store
+      description: Leave empty to be credited under your GitHub account name. Fill this in if you would rather be credited under another name.
+    validations:
+      required: false
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the pack
+      description: One or two sentences that will be shown under the pack name. Say what it sounds like and how many files it has.
+      placeholder: Six typing sounds with the uneven strike of a mechanical keyboard. One sound per key press.
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Which sounds does the pack contain?
+      description: This decides where the pack appears on the store page and which dropdown it is imported into.
+      options:
+        - Navigation sounds (roles and states)
+        - Typing sounds (keyboard)
+    validations:
+      required: true
+  - type: textarea
+    id: archive
+    attributes:
+      label: The theme zip
+      description: Drag the .zip file here. Keep the wav files inside a single folder, or at the top level of the archive. Nested folders are flattened automatically.
+    validations:
+      required: true
+  - type: textarea
+    id: sample
+    attributes:
+      label: An audio sample
+      description: Optional, but a short wav or mp3 of the pack becomes the preview on the store page so people can hear it before downloading.
+    validations:
+      required: false
+  - type: input
+    id: nvda-version
+    attributes:
+      label: NVDA version you tested on
+      placeholder: 2025.2
+    validations:
+      required: true
+  - type: input
+    id: addon-version
+    attributes:
+      label: Add-on version you tested on
+      description: The navSounds version the pack was imported into.
+      placeholder: 1.2.0
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I imported the pack on my own machine, played it in NVDA, and it works there. I have not tested it only by unpacking the archive.
+          required: true
+        - label: The wav files are mine to share, or I have permission to redistribute them under a licence that allows it.
+          required: true
+        - label: The archive contains only wav files, no scripts, no executables, and no nested archives.
+          required: true
