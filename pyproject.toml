@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "navSounds"
 version = "2.2.0"
 description = "NVDA add-on providing navigation and typing sound effects"
-readme = "readme.md"
+readme = "README.md"
 license = {text = "GPL-2.0-or-later"}
 requires-python = ">=3.11"
 classifiers = [
@@ -20,6 +20,14 @@ classifiers = [
 
 [project.urls]
 Repository = "https://github.com/ahmedthebest31/navsounds"
+
+# The add-on is a flat namespace package (navsounds/ has no __init__.py) and
+# the repo also holds non-Python trees such as store/. Setuptools skips a
+# handful of well-known names such as "tests" during auto-discovery but not
+# "store", so discovery is pinned explicitly here instead of left implicit.
+[tool.setuptools.packages.find]
+include = ["navsounds*"]
+namespaces = true
 
 [tool.ruff]
 line-length = 120
