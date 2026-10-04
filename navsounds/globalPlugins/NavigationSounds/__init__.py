@@ -22,6 +22,7 @@ import ui
 from .audio import MultiPlayerManager
 from .settings import NavSettingsPanel
 from .browser import BrowseModeMoveListener
+from .theme_import import NAV_KIND, TYPE_KIND, get_user_themes_root
 
 addonHandler.initTranslation()
 _: Callable[[str], str]
@@ -46,6 +47,13 @@ NAV_NO_OBJECT_THROTTLE_SECONDS = 0.06
 # versions. Every other reason (QUERY, SAYALL, MOUSE, ...) keeps announcing
 # roles/states so context is never lost.
 _SOUND_REASON_NAMES = frozenset({"FOCUS", "CARET", "QUICKNAV"})
+# Sound packs name their files after the roles they serve, lowercased and
+# without underscores, so "CHECKMENUITEM.wav" resolves to the checkmenuitem
+# role. Used to guess whether an imported archive holds navigation or typing
+# sounds. Role is a plain class of int constants, hence vars().
+_ROLE_NAMES = frozenset(
+	name.lower() for name, value in vars(Role).items() if isinstance(value, int) and not name.startswith("_")
+)
 
 
 def _reason_plays_nav_sounds(reason: Any) -> bool:
@@ -161,18 +169,49 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		return Path(__file__).resolve().parent
 
 	@property
+	def config_path(self) -> Path:
+		"""NVDA user configuration directory, also used by portable installs.
+
+		Stays valid across add-on updates, which is why imported themes live
+		here instead of next to the bundled packs.
+		"""
+		return Path(config.conf.appArgs.configPath)
+
+	@property
+	def user_themes_path(self) -> Path:
+		"""Root of the user imported themes; not created until the first import."""
+		return get_user_themes_root(self.config_path)
+
+	def is_role_sound_name(self, stem: str) -> bool:
+		"""True when a wav stem names a controlTypes.Role, as sound packs do."""
+		return stem.lower() in _ROLE_NAMES
+
+	@property
 	def loc_nav_sounds(self) -> Path:
 		nav_type = self.role_section.get("soundType")
 		if not nav_type:
 			raise ValueError("saved settings sound type for navigation not found")
-		return Path(self.main_paths / "effects" / "navsounds" / nav_type)
+		return self._resolve_theme_dir(NAV_KIND, nav_type)
 
 	@property
 	def loc_type_sounds(self) -> Path:
 		typing_type = self.role_section["type"]
 		if not typing_type:
 			raise ValueError("saved settings sound type for typing not found")
-		return Path(self.main_paths / "effects" / "typingsound" / typing_type)
+		return self._resolve_theme_dir(TYPE_KIND, typing_type)
+
+	def _resolve_theme_dir(self, kind: str, theme_name: str) -> Path:
+		"""Locate a theme, preferring the bundled copy over an imported one.
+
+		The bundled packs are verified and hand tuned, so an imported folder
+		never shadows them. The importer also renames on collision, which keeps
+		an existing user selection working when a new theme is added.
+		"""
+		builtin = self.main_paths / "effects" / kind / theme_name
+		if builtin.is_dir():
+			return builtin
+		imported = self.user_themes_path / kind / theme_name
+		return imported if imported.is_dir() else builtin
 
 	def _collect_sound_entries(self) -> list[tuple[str, Path]]:
 		entries: list[tuple[str, Path]] = []

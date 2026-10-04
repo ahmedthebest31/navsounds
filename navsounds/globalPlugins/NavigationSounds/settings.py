@@ -10,8 +10,27 @@ from gui import guiHelper
 from gui.settingsDialogs import SettingsPanel
 import ui
 
+from .theme_import import (
+	NAV_KIND,
+	TYPE_KIND,
+	ThemeImportError,
+	import_theme_zip,
+	list_user_themes,
+	read_archive_wav_stems,
+	set_translator,
+)
+
 addonHandler.initTranslation()
 _: Callable[[str], str]
+set_translator(_)
+
+# Curated sound packs, served as static files and updated by hand. Kept as a
+# single constant so a future domain change stays one edit. The add-on only
+# opens a browser; it never talks to the network itself.
+STORE_URL = "https://ahmedthebest31.github.io/navsounds/"
+
+# Order must match the choices offered by the theme type dialog.
+KIND_CHOICES = (NAV_KIND, TYPE_KIND)
 
 
 class NavSettingsPanel(SettingsPanel):
@@ -22,12 +41,8 @@ class NavSettingsPanel(SettingsPanel):
 		if self.main_plugin is None:
 			raise ValueError("The plugin is not transferred to the settings panel")
 
-		base_sounds_dir = self.main_plugin.main_paths / "effects"
-		nav_sounds_dir = base_sounds_dir / "navsounds"
-		type_sounds_dir = base_sounds_dir / "typingsound"
-
-		nav_sounds = [p.name for p in nav_sounds_dir.iterdir() if p.is_dir()] if nav_sounds_dir.is_dir() else []
-		type_sounds = [p.name for p in type_sounds_dir.iterdir() if p.is_dir()] if type_sounds_dir.is_dir() else []
+		nav_sounds = self._theme_choices(NAV_KIND)
+		type_sounds = self._theme_choices(TYPE_KIND)
 
 		sizer_helper = guiHelper.BoxSizerHelper(self, sizer=sizer)
 
@@ -93,6 +108,13 @@ class NavSettingsPanel(SettingsPanel):
 			)
 		)
 
+		store_buttons = guiHelper.ButtonHelper(wx.HORIZONTAL)
+		open_store = store_buttons.addButton(self, label=_("open theme store"), name="store")
+		open_store.Bind(wx.EVT_BUTTON, self.onopenstore)
+		import_theme = store_buttons.addButton(self, label=_("import sound theme..."), name="import")
+		import_theme.Bind(wx.EVT_BUTTON, self.onimporttheme)
+		sizer_helper.addItem(store_buttons)
+
 		b = sizer_helper.addItem(wx.Button(self, label=_("open sounds folder")))
 		b.Bind(wx.EVT_BUTTON, self.onopen)
 
@@ -116,9 +138,134 @@ class NavSettingsPanel(SettingsPanel):
 		self.mouse_delay_ctrl.Enable(is_enabled)
 		evt.Skip()
 
-	def onopen(self, _: wx.Event) -> None:
+	def onopen(self, evt: wx.Event) -> None:
 		effects_path = Path(__file__).resolve().parent / "effects"
 		os.startfile(effects_path)
+
+	def onopenstore(self, evt: wx.Event) -> None:
+		# Same mechanism as the donate button: hand the URL to the browser and
+		# say so, rather than silently doing nothing when no browser is found.
+		if web.open(STORE_URL):
+			ui.message(_("the theme store is opened in your web browser"))
+		else:
+			ui.message(_("the theme store could not be opened, visit {}").format(STORE_URL))
+
+	def onimporttheme(self, evt: wx.Event) -> None:
+		with wx.FileDialog(
+			self,
+			_("open sound theme archive"),
+			wildcard=_("theme archives") + " (*.zip)|*.zip",
+			style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
+		) as dlg:
+			if dlg.ShowModal() != wx.ID_OK:
+				return
+			archive = Path(dlg.GetPath())
+
+		kind = self._ask_theme_kind(archive)
+		if kind is None:
+			return
+
+		try:
+			result = import_theme_zip(
+				archive,
+				self.main_plugin.config_path,
+				kind,
+				self._builtin_theme_names(kind),
+			)
+		except ThemeImportError as error:
+			ui.message(_("the theme could not be imported: {}").format(error), errorLevel=1)
+			return
+
+		self._select_theme(kind, result.theme_name)
+		message = _("theme '{}' was imported with {} sound files").format(result.theme_name, result.file_count)
+		if result.skipped_count:
+			message = _("{} {}").format(message, _("{} unusable file was skipped.").format(result.skipped_count))
+		ui.message(message)
+
+	def _ask_theme_kind(self, archive: Path) -> str | None:
+		"""Ask which sound category to install into, defaulting to a guess.
+
+		Navigation packs name their files after controlTypes roles and typing
+		packs do not, which makes the guess reliable. It stays only a default:
+		the user always decides, so an unusual pack can still be filed properly.
+		"""
+		labels = [_("navigation sounds (roles and states)"), _("typing sounds (keyboard)")]
+		with wx.Dialog(self, title=_("theme type")) as dlg:
+			sizer = guiHelper.BoxSizerHelper(dlg, orientation=wx.VERTICAL)
+			sizer.addItem(wx.StaticText(dlg, label=_("which sounds does '{}' contain?").format(archive.name)))
+			radio = wx.RadioBox(
+				dlg,
+				label=_("theme type"),
+				choices=labels,
+				majorDimension=1,
+				style=wx.RB_GROUP,
+			)
+			sizer.addItem(radio)
+			sizer.addDialogDismissButtons(wx.OK | wx.CANCEL)
+			dlg.SetSizer(sizer.sizer)
+			dlg.Fit()
+			dlg.CenterOnParent()
+			if self._guess_theme_kind(archive) == TYPE_KIND:
+				radio.SetSelection(1)
+			if dlg.ShowModal() != wx.ID_OK:
+				return None
+			index = radio.GetSelection()
+		return KIND_CHOICES[index] if index in (0, 1) else NAV_KIND
+
+	def _guess_theme_kind(self, archive: Path) -> str | None:
+		"""Guess the sound category from the wav names inside the archive.
+
+		Navigation packs name their files after controlTypes roles and typing
+		packs do not, so wavs without any role name point at the keyboard.
+		Only an unreadable archive gives no guess at all.
+		"""
+		try:
+			stems = read_archive_wav_stems(archive)
+		except ThemeImportError:
+			return None
+		if not stems:
+			return None
+		if any(self.main_plugin.is_role_sound_name(stem) for stem in stems):
+			return NAV_KIND
+		return TYPE_KIND
+
+	def _builtin_theme_names(self, kind: str) -> list[str]:
+		"""Names of the themes shipped inside the add-on."""
+		kind_dir = self.main_plugin.main_paths / "effects" / kind
+		if not kind_dir.is_dir():
+			return []
+		return [entry.name for entry in kind_dir.iterdir() if entry.is_dir()]
+
+	def _theme_choices(self, kind: str) -> list[str]:
+		"""Bundled themes first, then imported ones, without duplicates.
+
+		Each group is sorted on its own, so the shipped packs keep their block at
+		the top of the list and an import is only ever appended below them.
+		"""
+		bundled = sorted(self._builtin_theme_names(kind), key=str.casefold)
+		imported = sorted(list_user_themes(self.main_plugin.config_path, kind), key=str.casefold)
+		names: list[str] = []
+		seen: set[str] = set()
+		for name in bundled + imported:
+			key = name.casefold()
+			if key in seen:
+				continue
+			seen.add(key)
+			names.append(name)
+		return names
+
+	def _select_theme(self, kind: str, theme_name: str) -> None:
+		"""Rebuild one dropdown so a fresh import is selectable straight away.
+
+		The sound cache is deliberately left alone: onSave already reloads it
+		when the selection really changes, which keeps one import to one decode
+		pass instead of two.
+		"""
+		choice = self.sou if kind == NAV_KIND else self.sou1
+		previous = choice.GetStringSelection()
+		choice.Set(self._theme_choices(kind))
+		choice.SetStringSelection(theme_name if theme_name in choice.GetItems() else previous)
+		self.Layout()
 
 	def onSave(self) -> None:
 		if self.main_plugin is None:
@@ -166,7 +313,7 @@ class NavSettingsPanel(SettingsPanel):
 		if new_volume != old_volume or new_sound_type != old_sound_type or new_typing_type != old_typing_type:
 			self.main_plugin.reload_audio()
 
-	def ondonate(self, _: wx.Event) -> None:
+	def ondonate(self, evt: wx.Event) -> None:
 		ui.message(_("please wait"))
 		web.open("https://www.paypal.me/ahmedthebest31")
 		ui.message(_("donation link is opened"))
