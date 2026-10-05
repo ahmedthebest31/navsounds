@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2026-07-24 05:00+0300\n"
-"PO-Revision-Date: 2026-07-24 10:11+0700\n"
+"PO-Revision-Date: 2026-10-05 13:28+0700\n"
 "Last-Translator: nguyenninhhoang <nguyenninhhoang2005@gmail.com>\n"
 "Language-Team: \n"
 "Language: vi\n"
@@ -37,12 +37,8 @@ msgid "Enable typing sounds"
 msgstr "Bật âm thanh gõ"
 
 #: navsounds/globalPlugins/NavigationSounds/__init__.py
-msgid ""
-"Pressing it once toggles between on and off object sounds, and Pressing "
-"twice  it toggles between on and off typing sounds."
-msgstr ""
-"Nhấn một lần để chuyển đổi giữa bật và tắt âm thanh của đối tượng và Nhấn "
-"hai lần để chuyển đổi giữa bật và tắt âm thanh gõ."
+msgid "Pressing it once toggles between on and off object sounds, and Pressing twice  it toggles between on and off typing sounds."
+msgstr "Nhấn một lần để chuyển đổi giữa bật và tắt âm thanh của đối tượng, nhấn hai lần để chuyển đổi giữa bật và tắt âm thanh gõ."
 
 #: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "select sound"
@@ -91,3 +87,159 @@ msgstr "mở thư mục âm thanh"
 #: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "donate"
 msgstr "quyên góp"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "choose how you would like to donate"
+msgstr "chọn cách bạn muốn quyên góp"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "close"
+msgstr "đóng"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "do not show this again"
+msgstr "không hiển thị lại thông báo này"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "donate with InstaPay Egypt"
+msgstr "quyên góp bằng InstaPay Ai Cập"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "donate with PayPal"
+msgstr "quyên góp bằng PayPal"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "import sound theme..."
+msgstr "nhập chủ đề âm thanh..."
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "navigation sounds (roles and states)"
+msgstr "âm thanh điều hướng (vai trò và trạng thái)"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "no free name was found for the imported theme"
+msgstr "không tìm thấy tên trống nào cho chủ đề đã nhập"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open bundled sounds folder"
+msgstr "mở thư mục âm thanh đi kèm"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open sound theme archive"
+msgstr "mở tệp lưu trữ chủ đề âm thanh"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open theme store"
+msgstr "mở cửa hàng chủ đề"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open themes folder"
+msgstr "mở thư mục chủ đề"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "support navSounds development"
+msgstr "hỗ trợ phát triển navSounds"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains an absolute path"
+msgstr "tệp lưu trữ chứa một đường dẫn tuyệt đối"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains an unsafe path"
+msgstr "tệp lưu trữ chứa một đường dẫn không an toàn"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains no readable sound files"
+msgstr "tệp lưu trữ không chứa tệp âm thanh nào có thể đọc được"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains no sound files"
+msgstr "tệp lưu trữ không chứa tệp âm thanh nào"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains too many items"
+msgstr "tệp lưu trữ chứa quá nhiều mục"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive could not be read: {}"
+msgstr "không thể đọc tệp lưu trữ: {}"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive is too large to import"
+msgstr "tệp lưu trữ quá lớn để nhập"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the bundled sounds folder could not be opened"
+msgstr "không thể mở thư mục âm thanh đi kèm"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the bundled sounds folder is opened"
+msgstr "thư mục âm thanh đi kèm đã được mở"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the donation page could not be opened"
+msgstr "không thể mở trang quyên góp"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the donation page is opened in your web browser"
+msgstr "trang quyên góp đã được mở trong trình duyệt web của bạn"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the selected archive does not exist"
+msgstr "tệp lưu trữ đã chọn không tồn tại"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the theme could not be imported: {}"
+msgstr "không thể nhập chủ đề: {}"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the theme could not be installed: {}"
+msgstr "không thể cài đặt chủ đề: {}"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the theme store could not be opened, visit {}"
+msgstr "không thể mở cửa hàng chủ đề, hãy truy cập {}"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the theme store is opened in your web browser"
+msgstr "cửa hàng chủ đề đã được mở trong trình duyệt web của bạn"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the themes folder could not be opened"
+msgstr "không thể mở thư mục chủ đề"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the themes folder is opened, your imported themes are inside it"
+msgstr "thư mục chủ đề đã được mở, các chủ đề bạn đã nhập nằm bên trong"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the user themes folder could not be created: {}"
+msgstr "không thể tạo thư mục chủ đề của người dùng: {}"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "theme '{}' was imported with {} sound files"
+msgstr "đã nhập chủ đề '{}' với {} tệp âm thanh"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "theme archives"
+msgstr "tệp lưu trữ chủ đề"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "theme type"
+msgstr "loại chủ đề"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "typing sounds (keyboard)"
+msgstr "âm thanh gõ (bàn phím)"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "which sounds does '{}' contain?"
+msgstr "'{}' chứa những âm thanh nào?"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "{} unusable file was skipped."
+msgstr "đã bỏ qua {} tệp không dùng được."
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "{} {}"
+msgstr "{} {}"
