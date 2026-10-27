@@ -4,16 +4,18 @@
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 [![NVDA Compatibility](https://img.shields.io/badge/NVDA-2019.3%2B-brightgreen.svg)](https://www.nvaccess.org/download/)
 
-Navigation Sounds is an NVDA screen reader add-on that provides audio feedback for navigation and keyboard typing. It allows you to hear different sounds based on the roles / states of the elements you interact with.
+NVDA add-on that plays sounds when you move between elements and when you type. Different roles and states get different sounds, and you can swap the whole sound set.
 
-## 🌟 Features
+## Features
 
-- **Toggle Sounds**: Swiftly turn object sounds and typing feedback on/off with `NVDA+alt+n`. Further customization available under `NVDA menu Preferences > Input gestures > Navigation Sounds`.
-- **Settings Page**: Personalize your experience by selecting from a variety of navigation sound packages and typing effects. Additional configuration options also available.
-- **Sound Packages**: Comes bundled with diverse sound effects. Plus, you're free to craft and integrate your custom packages.
-- **Sound Store**: A browsable store of downloadable sound packs lives at [ahmedthebest31.github.io/navsounds/store](https://ahmedthebest31.github.io/navsounds/store/). Preview any pack on the page, download it, and install it from the add-on settings.
-- **Compatibility**: Tailored for modern NVDA versions, starting from 2019.3.
-- **Multilingual**: Supports English, Arabic, Italian, French, Spanish, Portuguese, Polish, Danish, Ukrainian, Vietnamese, and Chinese simplified.
+- Play a sound for the role and state of the element you land on (buttons, links, headings, checkboxes, and so on).
+- Play typing sounds while you type, with several keyboard sound packs.
+- Toggle object sounds and typing sounds with NVDA+alt+n.
+- Settings page under NVDA menu, Preferences, Settings, Navigation Sounds: pick a pack, set volume, toggle mouse hover and arrow-key sounds.
+- Import your own sound packs from a .zip file.
+- Browse and download community packs from the sound store.
+- Runs on NVDA 2019.3 and newer on Windows.
+- Translated into English, Arabic, Italian, French, Spanish, Portuguese, Polish, Ukrainian, Vietnamese and Simplified Chinese.
 
 ## Installation
 

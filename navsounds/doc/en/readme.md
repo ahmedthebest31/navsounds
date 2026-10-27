@@ -25,3 +25,14 @@ Access a settings page where you can choose from various navigation sound packag
 Contributions to this project are welcome! If you find a bug, have an idea for an improvement, or want to contribute in any other way, please feel free to open an issue or submit a pull request.
 
 Special thanks to  [mesteranas](https://github.com/mesteranas/) for his wonderful Contributions in developing this add-on with me.
+
+## What is new in 2.3.0
+
+* Sound themes can now be imported from a local .zip file. Open NVDA menu, Preferences, Settings, Navigation Sounds, then press "import sound theme...".
+* A sound store is available online at https://ahmedthebest31.github.io/navsounds/store/ with previews and downloads. Imported packs are stored in your NVDA configuration folder and survive add-on updates.
+* A donation reminder appears once after install or update. You can donate via PayPal or InstaPay Egypt, or disable the reminder permanently.
+* Duplicate navigation sounds in Electron and Chromium apps are suppressed.
+* Audio is converted to stereo, 16-bit, 48000 Hz at load time, using a single audio stream.
+* Mouse hover delay default lowered to 50 ms.
+* New "open themes folder" and "open bundled sounds folder" buttons in settings.
+
