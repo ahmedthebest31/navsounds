@@ -1,6 +1,6 @@
 # nav Sounds
 Este complemento para NVDA proporciona sonidos de navegación y sonidos al escribir con el teclado.
-Puedes oír sonidos diferentes basados en los roles de los elementos con los que interactúas,, así como distintos sonidos mientras tecleas.
+Puedes oír sonidos diferentes basados en los roles de los elementos con los que interactúas, así como distintos sonidos mientras tecleas.
 Con posibilidad de personalizar todo.
 
 
@@ -12,8 +12,8 @@ Este complemento se inspira en el complemento Objsounds, creado por Tyler Spivey
 Creado por Ahmed Samy (AhmedTheBest)
 email: ahmedthebest31@gmail.com
 con la colaboración de mesteranas
-[github]("https://github.com/ahmedthebest31/navsounds")
-[hacer una donación]("https://www.paypal.me/ahmedthebest31")
+[github](https://github.com/ahmedthebest31/navsounds)
+[hacer una donación](https://www.paypal.me/ahmedthebest31)
 
 Alterna fácilmente pulsando una vez el atajo de teclado NVDA+alt+n para activar y desactivar los sonidos de los objetos, y al pulsarlo dos veces para activar y desactivar los sonidos de escritura. Puedes cambiar el atajo de teclado por el que prefieras desde la categoría sonidos de navegación en el diálogo Gestos de entrada.   
 Accede a una página de opciones donde puedes elegir entre diversos paquetes de sonidos de navegación / efectos de sonido de tecleo y configurar opciones adicionales.   
@@ -24,4 +24,13 @@ Incluye una selección de paquetes de sonido y efectos de sonido de tecleo, y pe
 
 Agradecimiento especial a [mesteranas](https://github.com/mesteranas/) por sus maravillosas contribuciones en el desarrollo de este complemento.
 
+## Novedades de la versión 2.3.0
+
+* Ahora se pueden importar temas de sonidos desde un archivo .zip local. Abre el menú de NVDA, Preferencias, Opciones, Sonidos de navegación, y pulsa "importar tema de sonidos...".
+* Hay una tienda de sonidos disponible en línea en https://ahmedthebest31.github.io/navsounds/store/ con vistas previas y descargas. Los paquetes importados se guardan en la carpeta de configuración de NVDA y se conservan al actualizar el complemento.
+* Aparece un recordatorio de donación una vez después de instalar o actualizar el complemento. Puedes donar mediante PayPal o InstaPay Egypt, o desactivar el recordatorio de forma permanente.
+* Se suprimen los sonidos de navegación duplicados en las aplicaciones Electron y Chromium.
+* El audio se convierte a estéreo, 16 bits y 48000 Hz al cargarlo, usando un único flujo de audio.
+* El retardo predeterminado al pasar el ratón se ha reducido a 50 ms.
+* Nuevos botones "abrir carpeta de temas" y "abrir carpeta de sonidos incluidos" en las opciones.
 

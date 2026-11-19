@@ -5,40 +5,39 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-10-19 16:06+0300\n"
-"PO-Revision-Date: 2023-10-24 14:19+0200\n"
-"Last-Translator: Rémy Ruiz <remyruiz@gmail.com>\n"
+"POT-Creation-Date: 2026-07-24 05:00+0300\n"
+"PO-Revision-Date: 2026-11-19 12:00+0100\n"
+"Last-Translator: Pedro Flores\n"
 "Language-Team: \n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:67
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:122
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:133
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "navigation sounds"
 msgstr "sonidos de navegación"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:106
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "Disable navigation sounds"
 msgstr "Deshabilitar sonidos de navegación"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:108
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "Enable navigation sounds"
 msgstr "Habilitar sonidos de navegación"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:112
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "Disable typing sounds"
 msgstr "Deshabilitar sonidos de escritura"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:114
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid "Enable typing sounds"
 msgstr "Habilitar sonidos de escritura"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:117
+#: navsounds/globalPlugins/NavigationSounds/__init__.py
 msgid ""
 "Pressing it once toggles between on and off object sounds, and Pressing "
 "twice  it toggles between on and off typing sounds."
@@ -47,41 +46,219 @@ msgstr ""
 "los objetos, y al presionarlo dos veces se alterna entre activar y "
 "desactivar los sonidos de escritura."
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:125
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "select sound"
 msgstr "seleccionar sonido"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:129
-msgid "say roles"
-msgstr "decir los roles"
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "say element roles"
+msgstr "anunciar los roles de los elementos"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:131
-msgid "say states"
-msgstr "decir los estados"
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "say element states"
+msgstr "anunciar los estados de los elementos"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:135
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "play sounds on mouse hover"
+msgstr "reproducir sonidos al pasar el ratón por encima"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "mouse hover delay (ms)"
+msgstr "retardo al pasar el ratón (ms)"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "keyboard typing sound"
 msgstr "sonido de escritura del teclado"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:137
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "enable typing sound in text boxes only"
 msgstr "habilitar el sonido de escritura solo en cuadros de texto"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:139
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "select typing sound"
 msgstr "seleccionar sonido de escritura"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:143
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "play navigation sounds during arrow key navigation"
+msgstr "reproducir sonidos de navegación al navegar con las flechas"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "volume"
 msgstr "volumen"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:147
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "open sounds folder"
 msgstr "abrir carpeta de sonidos"
 
-#: C:\Users\Mesteranas1\AppData\Roaming\nvda\addons\navSounds\globalPlugins\NavigationSounds\__init__.py:149
+#: navsounds/globalPlugins/NavigationSounds/settings.py
 msgid "donate"
 msgstr "hacer una donación"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "choose how you would like to donate"
+msgstr "elige cómo quieres hacer tu donación"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "close"
+msgstr "cerrar"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "do not show this again"
+msgstr "no volver a mostrar"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "donate with InstaPay Egypt"
+msgstr "donar con InstaPay Egypt"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "donate with PayPal"
+msgstr "donar con PayPal"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "import sound theme..."
+msgstr "importar tema de sonidos..."
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "navigation sounds (roles and states)"
+msgstr "sonidos de navegación (roles y estados)"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid ""
+"navSounds is free, and it always will be. A lot of work went into keeping it "
+"fast, light and reliable on every device, including yours. If you like it, a "
+"small donation helps that work continue."
+msgstr ""
+"navSounds es gratuito y siempre lo será. Se ha dedicado mucho trabajo a "
+"mantenerlo rápido, ligero y fiable en todos los dispositivos, incluido el "
+"tuyo. Si te gusta, una pequeña donación ayuda a que ese trabajo continúe."
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "no free name was found for the imported theme"
+msgstr "no se encontró ningún nombre libre para el tema importado"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open bundled sounds folder"
+msgstr "abrir carpeta de sonidos incluidos"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open sound theme archive"
+msgstr "abrir archivo de tema de sonidos"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open theme store"
+msgstr "abrir tienda de temas"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "open themes folder"
+msgstr "abrir carpeta de temas"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "support navSounds development"
+msgstr "apoya el desarrollo de navSounds"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains an absolute path"
+msgstr "el archivo comprimido contiene una ruta absoluta"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains an unsafe path"
+msgstr "el archivo comprimido contiene una ruta no segura"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains no readable sound files"
+msgstr "el archivo comprimido no contiene archivos de sonido legibles"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains no sound files"
+msgstr "el archivo comprimido no contiene archivos de sonido"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive contains too many items"
+msgstr "el archivo comprimido contiene demasiados elementos"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive could not be read: {}"
+msgstr "no se pudo leer el archivo comprimido: {}"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the archive is too large to import"
+msgstr "el archivo comprimido es demasiado grande para importarlo"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the bundled sounds folder could not be opened"
+msgstr "no se pudo abrir la carpeta de sonidos incluidos"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the bundled sounds folder is opened"
+msgstr "se ha abierto la carpeta de sonidos incluidos"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the donation page could not be opened"
+msgstr "no se pudo abrir la página de donaciones"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the donation page is opened in your web browser"
+msgstr "se ha abierto la página de donaciones en tu navegador web"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the selected archive does not exist"
+msgstr "el archivo comprimido seleccionado no existe"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the theme could not be imported: {}"
+msgstr "no se pudo importar el tema: {}"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the theme could not be installed: {}"
+msgstr "no se pudo instalar el tema: {}"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the theme store could not be opened, visit {}"
+msgstr "no se pudo abrir la tienda de temas, visita {}"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the theme store is opened in your web browser"
+msgstr "se ha abierto la tienda de temas en tu navegador web"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the themes folder could not be opened"
+msgstr "no se pudo abrir la carpeta de temas"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "the themes folder is opened, your imported themes are inside it"
+msgstr "se ha abierto la carpeta de temas, ahí están los temas que has importado"
+
+#: navsounds/globalPlugins/NavigationSounds/theme_import.py
+msgid "the user themes folder could not be created: {}"
+msgstr "no se pudo crear la carpeta de temas del usuario: {}"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "theme '{}' was imported with {} sound files"
+msgstr "se ha importado el tema «{}» con {} archivos de sonido"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "theme archives"
+msgstr "archivos de temas"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "theme type"
+msgstr "tipo de tema"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "typing sounds (keyboard)"
+msgstr "sonidos de escritura (teclado)"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "which sounds does '{}' contain?"
+msgstr "¿qué sonidos contiene «{}»?"
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "{} unusable file was skipped."
+msgstr "Archivos no utilizables omitidos: {}."
+
+#: navsounds/globalPlugins/NavigationSounds/settings.py
+msgid "{} {}"
+msgstr "{} {}"
 
 #~ msgid "Disable sayRoles"
 #~ msgstr "Deshabilitar  decir los roles"
